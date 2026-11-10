@@ -1,12 +1,13 @@
-# smart-water-bottle-app
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="dark">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Smart Water Bottle Dashboard</title>
+  <title>AURA-SYNC Smart Hydration</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Load Google Gen AI SDK -->
+  <!-- Chart.js for Visualizations -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- Google Gen AI SDK -->
   <script type="importmap">
     {
       "imports": {
@@ -14,182 +15,462 @@
       }
     }
   </script>
+  <style>
+    body { background-color: #0B0F19; color: #F1F5F9; font-family: system-ui, -apple-system, sans-serif; }
+    .card { background-color: #111827; border: 1px solid #1F2937; border-radius: 1rem; }
+  </style>
 </head>
-<body class="bg-slate-900 text-slate-100 min-h-screen p-6 font-sans">
-  <div class="max-w-2xl mx-auto space-y-6">
+<body class="min-h-screen pb-24 max-w-md mx-auto relative border-x border-slate-800">
 
-    <!-- Header -->
-    <header class="flex justify-between items-center bg-slate-800 p-4 rounded-xl border border-slate-700">
-      <div>
-        <h1 class="text-xl font-bold text-cyan-400">AquaPulse AI</h1>
-        <p class="text-xs text-slate-400" id="status-text">Status: Disconnected</p>
+  <!-- Status Bar / Header -->
+  <header class="p-4 flex items-center justify-between border-b border-slate-800 bg-slate-900/80 sticky top-0 z-50 backdrop-blur">
+    <div class="flex items-center gap-2">
+      <span class="inline-block w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+      <span id="ble-status" class="text-xs font-semibold text-emerald-400">Connected</span>
+    </div>
+    <div class="text-xs font-bold tracking-widest text-slate-400 uppercase">AURA-SYNC</div>
+    <div class="flex items-center gap-2 text-xs text-slate-300">
+      <span class="text-amber-400">⚡ 88%</span>
+      <button onclick="toggleBluetooth()" class="bg-slate-800 p-1.5 rounded-lg border border-slate-700 text-[10px]">BLE</button>
+    </div>
+  </header>
+
+  <!-- Content Container -->
+  <main class="p-4 space-y-6">
+
+    <!-- TAB 1: HOME -->
+    <div id="tab-home" class="space-y-4">
+      <div class="flex justify-between items-center">
+        <div>
+          <p class="text-xs text-slate-400">Hello Alex 👋</p>
+          <h1 class="text-2xl font-bold text-slate-100">Hydration Today</h1>
+        </div>
+        <span class="bg-slate-800 border border-slate-700 text-amber-400 text-xs px-3 py-1.5 rounded-full font-medium">🔥 5 Day Streak</span>
       </div>
-      <button id="connect-btn" onclick="toggleBluetooth()" class="bg-cyan-500 hover:bg-cyan-600 text-slate-950 font-semibold px-4 py-2 rounded-lg transition">
-        Connect Bottle
-      </button>
-    </header>
 
-    <!-- Main Hydration Display -->
-    <main class="bg-slate-800 p-6 rounded-xl border border-slate-700 text-center space-y-4">
-      <h2 class="text-sm font-medium text-slate-400 uppercase tracking-wider">Today's Intake</h2>
-      <div class="text-6xl font-extrabold text-cyan-300">
-        <span id="current-intake">0</span> <span class="text-2xl text-slate-400">/ <span id="target-goal">2500</span> ml</span>
+      <!-- Personal Goal Calculator Card -->
+      <div class="card p-4 space-y-3">
+        <details class="group">
+          <summary class="flex justify-between items-center cursor-pointer list-none">
+            <div class="flex items-center gap-2">
+              <span class="p-2 bg-slate-800 rounded-lg text-cyan-400">🧮</span>
+              <div>
+                <h3 class="text-sm font-semibold">Personal Goal Calculator</h3>
+                <p class="text-[11px] text-slate-400">Adjust age, weight & activity level</p>
+              </div>
+            </div>
+            <span class="text-slate-400 group-open:rotate-180 transition-transform">▼</span>
+          </summary>
+          <div class="pt-4 space-y-3 border-t border-slate-800 mt-3 text-xs">
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="block text-slate-400 mb-1">Weight (lbs)</label>
+                <input type="number" id="user-weight" value="160" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-slate-200">
+              </div>
+              <div>
+                <label class="block text-slate-400 mb-1">Age (Years)</label>
+                <input type="number" id="user-age" value="24" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-slate-200">
+              </div>
+            </div>
+            <div>
+              <label class="block text-slate-400 mb-1">Activity Level</label>
+              <select id="user-activity" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-slate-200">
+                <option value="1">Sedentary (Little or no exercise)</option>
+                <option value="1.2" selected>Moderate (3-5 days/wk)</option>
+                <option value="1.4">Active (Intense exercise/sports)</option>
+              </select>
+            </div>
+            <button onclick="calculateGoal()" class="w-full bg-emerald-600 hover:bg-emerald-500 font-semibold py-2 rounded-lg text-slate-950 transition">
+              🔄 Update Hydration Target
+            </button>
+          </div>
+        </details>
       </div>
 
-      <!-- Progress Bar -->
-      <div class="w-full bg-slate-700 h-4 rounded-full overflow-hidden">
-        <div id="progress-bar" class="bg-cyan-400 h-full w-0% transition-all duration-500"></div>
-      </div>
+      <!-- Radial Hydration Progress Visual -->
+      <div class="card p-6 text-center space-y-4">
+        <div class="relative w-48 h-48 mx-auto flex items-center justify-center">
+          <canvas id="progressCanvas" width="192" height="192"></canvas>
+          <div class="absolute inset-0 flex flex-col items-center justify-center">
+            <span id="pct-text" class="text-4xl font-extrabold text-cyan-400">50%</span>
+            <span class="text-xs text-slate-300 mt-1"><span id="consumed-text">1,250</span> / <span id="target-text">2,500</span> ml</span>
+            <span id="remaining-text" class="text-[10px] text-emerald-400 mt-0.5 bg-emerald-950/60 px-2 py-0.5 rounded-full border border-emerald-800">1,250 ml to daily goal</span>
+          </div>
+        </div>
 
-      <!-- Controls for Manual Log/Simulated Drink -->
-      <div class="pt-4 flex justify-center gap-3">
-        <button onclick="addWater(250)" class="bg-slate-700 hover:bg-slate-600 px-3 py-2 rounded-md text-sm border border-slate-600">
-          +250 ml (Sip)
+        <button onclick="addWater(250)" class="w-full bg-cyan-600 hover:bg-cyan-500 text-slate-950 font-bold py-3 rounded-xl transition shadow-lg shadow-cyan-950/50">
+          🚰 Simulate Sip (+250 ml)
         </button>
-        <button onclick="addWater(500)" class="bg-slate-700 hover:bg-slate-600 px-3 py-2 rounded-md text-sm border border-slate-600">
-          +500 ml (Gulp)
+
+        <div class="flex justify-between items-center text-xs text-slate-400 px-2">
+          <button onclick="resetIntake()" class="underline hover:text-slate-200">Reset Intake</button>
+          <span>Last sip: <span id="last-sip-time">Just now</span></span>
+        </div>
+      </div>
+
+      <!-- Quick Metrics Grid -->
+      <div class="grid grid-cols-2 gap-3">
+        <div class="card p-4 space-y-1">
+          <div class="flex justify-between items-center text-xs text-slate-400">
+            <span>Water Temp</span>
+            <span class="text-amber-500">🌡️</span>
+          </div>
+          <p class="text-2xl font-bold text-slate-100"><span id="current-temp">18</span>°C</p>
+          <p class="text-[11px] text-emerald-400">Cool & Refreshing</p>
+        </div>
+
+        <div class="card p-4 space-y-1">
+          <div class="flex justify-between items-center text-xs text-slate-400">
+            <span>Bottle Level</span>
+            <span class="text-cyan-400">🗑️</span>
+          </div>
+          <p class="text-2xl font-bold text-slate-100">60%</p>
+          <div class="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden">
+            <div class="bg-cyan-400 h-full w-[60%]"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Smart AI Reminder Card -->
+      <div class="card p-4 border-l-4 border-l-cyan-400 space-y-2">
+        <div class="flex items-center justify-between">
+          <h3 class="text-xs font-bold uppercase tracking-wider text-cyan-400 flex items-center gap-1.5">
+            💡 Smart Reminder (Gemini AI)
+          </h3>
+          <button onclick="fetchAICoach()" class="text-[10px] bg-slate-800 border border-slate-700 px-2 py-1 rounded hover:bg-slate-700">Refresh</button>
+        </div>
+        <p id="ai-smart-tip" class="text-xs text-slate-300 leading-relaxed">
+          Based on your activity level, take 3 sips every 45 mins to maintain peak cognitive output.
+        </p>
+        <input type="password" id="gemini-key" placeholder="Paste Gemini API Key for Live AI" class="w-full bg-slate-900 border border-slate-800 text-[10px] p-1.5 rounded text-slate-300">
+      </div>
+    </div>
+
+    <!-- TAB 2: ANALYTICS -->
+    <div id="tab-analytics" class="space-y-6 hidden">
+      <div class="flex justify-between items-start">
+        <div>
+          <h2 class="text-xl font-bold text-slate-100">Hydration Insights</h2>
+          <p class="text-xs text-slate-400">Visual data logs from your smart bottle sensors</p>
+        </div>
+        <div class="bg-slate-800 p-1 rounded-lg border border-slate-700 text-xs flex gap-1">
+          <button class="bg-cyan-600 px-2 py-0.5 rounded text-slate-950 font-semibold">Day</button>
+          <button class="px-2 py-0.5 text-slate-400">Week</button>
+        </div>
+      </div>
+
+      <!-- Chart 1: Hourly Water Intake Bar Chart -->
+      <div class="card p-4 space-y-3">
+        <div class="flex justify-between items-center">
+          <div>
+            <span class="text-[10px] font-bold uppercase text-cyan-400 tracking-wider">Data Output #1</span>
+            <h3 class="text-sm font-semibold text-slate-200">Hourly Water Intake (ml)</h3>
+          </div>
+          <span class="text-xs bg-slate-800 border border-slate-700 px-2 py-1 rounded text-slate-300">Avg: 180 ml/hr</span>
+        </div>
+        <div class="h-48">
+          <canvas id="intakeChart"></canvas>
+        </div>
+      </div>
+
+      <!-- Chart 2: Water Quality & Temperature Log Dual-Axis Chart -->
+      <div class="card p-4 space-y-3">
+        <div class="flex justify-between items-center">
+          <div>
+            <span class="text-[10px] font-bold uppercase text-emerald-400 tracking-wider">Data Output #2</span>
+            <h3 class="text-sm font-semibold text-slate-200">Water Quality & Temperature Log</h3>
+          </div>
+          <span class="text-xs bg-emerald-950 border border-emerald-800 text-emerald-400 px-2 py-1 rounded font-medium">Purity: Optimal</span>
+        </div>
+        <div class="grid grid-cols-2 gap-2 text-center text-xs py-1 bg-slate-900/60 rounded-lg">
+          <div><span class="text-slate-400">Avg Temp Today:</span> <strong class="text-slate-200 block">17.5°C</strong></div>
+          <div><span class="text-slate-400">Current Quality (TDS):</span> <strong class="text-emerald-400 block">42 PPM (Pure)</strong></div>
+        </div>
+        <div class="h-48">
+          <canvas id="qualityChart"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 3: CONTROLS & SETTINGS -->
+    <div id="tab-controls" class="space-y-4 hidden">
+      <h2 class="text-xl font-bold text-slate-100">Bottle Controls & Preferences</h2>
+
+      <!-- Temperature Range Alert Slider -->
+      <div class="card p-4 space-y-3">
+        <div class="flex justify-between items-center">
+          <div>
+            <h3 class="text-sm font-semibold text-slate-200">Target Water Temp Alert</h3>
+            <p class="text-xs text-slate-400">Notify when water strays from range</p>
+          </div>
+          <span class="text-xs font-bold bg-cyan-950 border border-cyan-800 text-cyan-400 px-2.5 py-1 rounded-lg" id="temp-val">18°C</span>
+        </div>
+        <input type="range" min="4" max="30" value="18" oninput="document.getElementById('temp-val').innerText = this.value + '°C'" class="w-full accent-cyan-400 bg-slate-800 rounded-lg h-2 cursor-pointer">
+        <div class="flex justify-between text-[10px] text-slate-500">
+          <span>4°C (Ice Cold)</span>
+          <span>18°C (Recommended)</span>
+          <span>30°C (Warm)</span>
+        </div>
+      </div>
+
+      <!-- Find My Bottle Action -->
+      <div class="card p-4 space-y-3">
+        <div class="flex justify-between items-center">
+          <div>
+            <h3 class="text-sm font-semibold text-slate-200">Find My Smart Bottle</h3>
+            <p class="text-xs text-slate-400">Trigger acoustic chime & flashing LED on bottle</p>
+          </div>
+          <span class="text-cyan-400 text-sm">📍</span>
+        </div>
+        <button onclick="alert('📢 Chime signal sent to AURA-SYNC bottle!')" class="w-full bg-emerald-600 hover:bg-emerald-500 text-slate-950 font-bold py-3 rounded-xl transition flex items-center justify-center gap-2">
+          🔊 Play Bottle Chime Sound
         </button>
       </div>
-    </main>
 
-    <!-- AI Coaching Component -->
-    <section class="bg-slate-800 p-6 rounded-xl border border-slate-700 space-y-4">
-      <div class="flex items-center justify-between">
-        <h3 class="text-lg font-semibold text-cyan-400 flex items-center gap-2">
-          ✨ Gemini AI Hydration Coach
-        </h3>
-        <button onclick="fetchAICoaching()" id="ai-btn" class="bg-slate-700 hover:bg-slate-600 text-xs px-3 py-1.5 rounded-md border border-slate-600">
-          Ask AI
-        </button>
+      <!-- Unit & Feature Preferences -->
+      <div class="card p-4 space-y-4 text-xs">
+        <h3 class="font-semibold text-slate-200 text-sm">Unit Preferences</h3>
+        <div class="flex justify-between items-center">
+          <span class="text-slate-300">Temperature Unit</span>
+          <div class="bg-slate-900 p-1 rounded-lg border border-slate-800 flex gap-1">
+            <button class="bg-cyan-600 text-slate-950 px-2 py-0.5 rounded font-bold">°C</button>
+            <button class="text-slate-400 px-2 py-0.5">°F</button>
+          </div>
+        </div>
+        <div class="flex justify-between items-center pt-2 border-t border-slate-800">
+          <span class="text-slate-300">Auto UV-C Sterilization</span>
+          <input type="checkbox" checked class="w-4 h-4 accent-cyan-400 rounded cursor-pointer">
+        </div>
       </div>
+    </div>
 
-      <!-- API Key Setup Input -->
-      <div class="bg-slate-900 p-3 rounded-lg border border-slate-700">
-        <label for="api-key" class="block text-xs text-slate-400 mb-1">Gemini API Key:</label>
-        <input type="password" id="api-key" placeholder="Enter your Gemini API key" class="w-full bg-slate-800 text-sm px-3 py-2 rounded border border-slate-700 text-slate-200 focus:outline-none focus:border-cyan-500">
-      </div>
+  </main>
 
-      <!-- AI Response Box -->
-      <div id="ai-output" class="bg-slate-900/60 p-4 rounded-lg text-sm text-slate-300 min-h-[60px] italic">
-        Click "Ask AI" to generate a personalized coach check-in based on your current intake...
-      </div>
-    </section>
-
-  </div>
+  <!-- Bottom Navigation Bar -->
+  <nav class="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-md bg-slate-900/90 border-t border-slate-800 backdrop-blur px-6 py-3 flex justify-around items-center z-50">
+    <button onclick="switchTab('home')" id="nav-home" class="flex flex-col items-center gap-1 text-cyan-400">
+      <span class="text-lg">🏠</span>
+      <span class="text-[10px] font-medium">Home</span>
+    </button>
+    <button onclick="switchTab('analytics')" id="nav-analytics" class="flex flex-col items-center gap-1 text-slate-500 hover:text-slate-300">
+      <span class="text-lg">📈</span>
+      <span class="text-[10px] font-medium">Analytics</span>
+    </button>
+    <button onclick="switchTab('controls')" id="nav-controls" class="flex flex-col items-center gap-1 text-slate-500 hover:text-slate-300">
+      <span class="text-lg">⚙️</span>
+      <span class="text-[10px] font-medium">Controls</span>
+    </button>
+  </nav>
 
   <script type="module">
     import { GoogleGenAI } from '@google/genai';
 
-    // State Variables
-    let currentIntake = 0;
-    const targetGoal = 2500;
-    let bluetoothDevice = null;
+    // Application State
+    let consumed = 1250;
+    let targetGoal = 2500;
+    let chartInstanceIntake = null;
+    let chartInstanceQuality = null;
 
-    // Web Bluetooth UUIDs (Replace with your specific bottle's UUIDs if available)
-    const WATER_SERVICE_UUID = '0000181a-0000-1000-8000-00805f9b34fb'; // Environmental Sensing standard profile
-    const INTAKE_CHAR_UUID   = '00002a6e-0000-1000-8000-00805f9b34fb'; 
+    // Navigation Switcher
+    window.switchTab = function(tabName) {
+      ['home', 'analytics', 'controls'].forEach(tab => {
+        document.getElementById(`tab-${tab}`).classList.add('hidden');
+        document.getElementById(`nav-${tab}`).className = 'flex flex-col items-center gap-1 text-slate-500 hover:text-slate-300';
+      });
+      document.getElementById(`tab-${tabName}`).classList.remove('hidden');
+      document.getElementById(`nav-${tabName}`).className = 'flex flex-col items-center gap-1 text-cyan-400';
 
+      if (tabName === 'analytics') {
+        renderCharts();
+      }
+    };
+
+    // Calculate Goal based on user parameters
+    window.calculateGoal = function() {
+      const weight = parseFloat(document.getElementById('user-weight').value) || 160;
+      const activity = parseFloat(document.getElementById('user-activity').value) || 1.2;
+      // Standard baseline formula: ~0.5 - 0.7 oz/lb modified for activity
+      const baseOz = weight * 0.6 * activity;
+      targetGoal = Math.round(baseOz * 29.5735); // Convert oz to ml
+      updateProgressUI();
+    };
+
+    // Intake Actions
     window.addWater = function(amount) {
-      currentIntake = Math.min(targetGoal, currentIntake + amount);
-      updateUI();
+      consumed += amount;
+      document.getElementById('last-sip-time').innerText = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+      updateProgressUI();
     };
 
-    function updateUI() {
-      document.getElementById('current-intake').innerText = currentIntake;
-      const percentage = Math.min(100, Math.round((currentIntake / targetGoal) * 100));
-      document.getElementById('progress-bar').style.width = percentage + '%';
+    window.resetIntake = function() {
+      consumed = 0;
+      updateProgressUI();
+    };
+
+    function updateProgressUI() {
+      const pct = Math.min(100, Math.round((consumed / targetGoal) * 100));
+      document.getElementById('pct-text').innerText = pct + '%';
+      document.getElementById('consumed-text').innerText = consumed.toLocaleString();
+      document.getElementById('target-text').innerText = targetGoal.toLocaleString();
+      
+      const rem = Math.max(0, targetGoal - consumed);
+      document.getElementById('remaining-text').innerText = rem > 0 ? `${rem.toLocaleString()} ml to daily goal` : '🎉 Goal Reached!';
+
+      renderRadialProgress(pct);
     }
 
-    // Web Bluetooth Connection Handler
-    window.toggleBluetooth = async function() {
-      const statusText = document.getElementById('status-text');
-      const btn = document.getElementById('connect-btn');
+    // Canvas Radial Progress Renderer
+    function renderRadialProgress(percentage) {
+      const canvas = document.getElementById('progressCanvas');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-      if (!navigator.bluetooth) {
-        alert("Web Bluetooth is not supported in this browser. Use Chrome, Edge, or Opera.");
-        return;
-      }
+      const centerX = canvas.width / 2;
+      const centerY = canvas.height / 2;
+      const radius = 75;
 
-      try {
-        statusText.innerText = "Status: Connecting...";
-        bluetoothDevice = await navigator.bluetooth.requestDevice({
-          acceptAllDevices: true,
-          optionalServices: [WATER_SERVICE_UUID]
-        });
+      // Background Track
+      ctx.beginPath();
+      ctx.arc(centerX, centerY, radius, 0.75 * Math.PI, 2.25 * Math.PI);
+      ctx.strokeStyle = '#1E293B';
+      ctx.lineWidth = 14;
+      ctx.lineCap = 'round';
+      ctx.stroke();
 
-        const server = await bluetoothDevice.gatt.connect();
-        statusText.innerText = `Status: Connected to ${bluetoothDevice.name || 'Smart Bottle'}`;
-        btn.innerText = "Disconnect";
-        btn.onclick = disconnectBluetooth;
+      // Progress Fill Arc
+      const startAngle = 0.75 * Math.PI;
+      const endAngle = startAngle + (percentage / 100) * (1.5 * Math.PI);
 
-        // Try binding to telemetry characteristic
-        try {
-          const service = await server.getPrimaryService(WATER_SERVICE_UUID);
-          const characteristic = await service.getCharacteristic(INTAKE_CHAR_UUID);
-          await characteristic.startNotifications();
-          characteristic.addEventListener('characteristicvaluechanged', (e) => {
-            const val = e.target.value.getUint16(0, true);
-            currentIntake += val;
-            updateUI();
-          });
-        } catch (gattErr) {
-          console.warn("Connected, but custom GATT characteristics were not found. Running in UI mode.", gattErr);
+      ctx.beginPath();
+      ctx.arc(centerX, centerY, radius, startAngle, endAngle);
+      ctx.strokeStyle = '#22D3EE';
+      ctx.lineWidth = 14;
+      ctx.lineCap = 'round';
+      ctx.stroke();
+    }
+
+    // Render Analytics Charts matching document visual layouts
+    function renderCharts() {
+      if (chartInstanceIntake) chartInstanceIntake.destroy();
+      if (chartInstanceQuality) chartInstanceQuality.destroy();
+
+      // Chart 1: Hourly Bar Chart
+      const ctx1 = document.getElementById('intakeChart').getContext('2d');
+      chartInstanceIntake = new Chart(ctx1, {
+        type: 'bar',
+        data: {
+          labels: ['8 AM', '10 AM', '12 PM', '2 PM', '4 PM', '6 PM (Now)'],
+          datasets: [{
+            label: 'Consumed (ml)',
+            data: [250, 300, 450, 200, 300, 250],
+            backgroundColor: '#38BDF8',
+            borderRadius: 6
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: {
+            x: { grid: { display: false }, ticks: { color: '#94A3B8', font: { size: 10 } } },
+            y: { grid: { color: '#1E293B' }, ticks: { color: '#94A3B8', font: { size: 10 } } }
+          }
         }
+      });
 
-      } catch (err) {
-        statusText.innerText = "Status: Connection Failed";
-        console.error(err);
-      }
-    };
-
-    function disconnectBluetooth() {
-      if (bluetoothDevice && bluetoothDevice.gatt.connected) {
-        bluetoothDevice.gatt.disconnect();
-      }
-      document.getElementById('status-text').innerText = "Status: Disconnected";
-      const btn = document.getElementById('connect-btn');
-      btn.innerText = "Connect Bottle";
-      btn.onclick = window.toggleBluetooth;
+      // Chart 2: Dual Axis Line Chart (Temp vs TDS Quality)
+      const ctx2 = document.getElementById('qualityChart').getContext('2d');
+      chartInstanceQuality = new Chart(ctx2, {
+        type: 'line',
+        data: {
+          labels: ['8 AM', '10 AM', '12 PM', '2 PM', '4 PM', '6 PM'],
+          datasets: [
+            {
+              label: 'Temp (°C)',
+              data: [16.0, 17.0, 19.0, 18.0, 17.0, 18.0],
+              borderColor: '#38BDF8',
+              backgroundColor: '#38BDF8',
+              tension: 0.4,
+              yAxisID: 'y'
+            },
+            {
+              label: 'Purity (TDS)',
+              data: [45.0, 42.5, 42.0, 40.0, 41.0, 42.0],
+              borderColor: '#34D399',
+              backgroundColor: '#34D399',
+              borderDash: [4, 4],
+              tension: 0.4,
+              yAxisID: 'y1'
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: {
+            x: { grid: { display: false }, ticks: { color: '#94A3B8', font: { size: 10 } } },
+            y: { position: 'left', grid: { color: '#1E293B' }, ticks: { color: '#38BDF8', font: { size: 10 } } },
+            y1: { position: 'right', grid: { display: false }, ticks: { color: '#34D399', font: { size: 10 } } }
+          }
+        }
+      });
     }
 
-    // AI Component Handler
-    window.fetchAICoaching = async function() {
-      const apiKey = document.getElementById('api-key').value.trim();
-      const outputEl = document.getElementById('ai-output');
+    // AI Coaching Integration
+    window.fetchAICoach = async function() {
+      const key = document.getElementById('gemini-key').value.trim();
+      const tipEl = document.getElementById('ai-smart-tip');
 
-      if (!apiKey) {
-        outputEl.innerText = "Please enter a valid Gemini API Key above.";
+      if (!key) {
+        tipEl.innerText = "Please input a valid Gemini API Key in the field below to get dynamic real-time coaching tips.";
         return;
       }
 
-      outputEl.innerText = "Analyzing hydration metrics with Gemini...";
+      tipEl.innerText = "Analyzing smart bottle sensors with Gemini...";
 
       try {
-        const ai = new GoogleGenAI({ apiKey });
+        const ai = new GoogleGenAI({ apiKey: key });
         const prompt = `
-          You are a friendly smart water bottle AI coach. 
-          Context:
-          - Daily Intake Goal: ${targetGoal} ml
-          - Water Consumed Today: ${currentIntake} ml
-          - Completion: ${Math.round((currentIntake / targetGoal) * 100)}%
-          
-          Provide a 2-sentence actionable and encouraging check-in tip for the user.
+          User Profile: Alex (Weight: 160 lbs, Age: 24).
+          Smart Water Bottle Data:
+          - Intake Goal: ${targetGoal} ml
+          - Drank Today: ${consumed} ml
+          - Current Temp: 18°C
+          - Water Quality: 42 PPM (Pure)
+
+          Give 1 short, encouraging hydration coaching tip (max 25 words).
         `;
 
         const response = await ai.models.generateContent({
           model: 'gemini-2.5-flash',
-          contents: prompt,
+          contents: prompt
         });
 
-        outputEl.innerText = response.text;
-      } catch (error) {
-        console.error("Gemini API Error:", error);
-        outputEl.innerText = "Failed to fetch AI response. Please verify your API Key.";
+        tipEl.innerText = response.text;
+      } catch (e) {
+        console.error(e);
+        tipEl.innerText = "Error connecting to Gemini API. Please check your API key.";
       }
     };
+
+    // Bluetooth Stub
+    window.toggleBluetooth = async function() {
+      if (!navigator.bluetooth) {
+        alert("Web Bluetooth requires Chrome, Edge, or Bluefy app on iOS.");
+        return;
+      }
+      try {
+        const dev = await navigator.bluetooth.requestDevice({ acceptAllDevices: true });
+        document.getElementById('ble-status').innerText = `Connected (${dev.name || 'Bottle'})`;
+      } catch (e) {
+        console.log("BLE cancel or error", e);
+      }
+    };
+
+    // Initialize UI
+    updateProgressUI();
   </script>
 </body>
 </html>
-<a href="https://gmunroe28.github.io/smart-water-bottle-app/" target="_blank">
-  <img src="https://img.shields.io/badge/Launch%20App-Click%20Here-cyan?style=for-the-badge&logo=googlechrome" alt="Launch App">
-</a>
