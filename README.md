@@ -190,3 +190,7 @@
   </script>
 </body>
 </html>
+<a href="https://gmunroe28.github.io/smart-water-bottle-app/" target="_blank">
+  <img src="https://img.shields.io/badge/Launch%20App-Click%20Here-cyan?style=for-the-badge&logo=googlechrome" alt="Launch App">
+</a>
+
