@@ -1,130 +1,544 @@
 <!DOCTYPE html>
-<html lang="en" class="dark">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>AURA-SYNC | Smart Hydration & AI Coach</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
   <style>
-    body {
-      background-color: #070B14;
-      color: #F1F5F9;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    :root {
+      --bg-main: #070B14;
+      --bg-card: #111827;
+      --bg-input: #0B0F19;
+      --border: #1F2937;
+      --text-main: #F8FAFC;
+      --text-muted: #94A3B8;
+      --cyan: #22D3EE;
+      --emerald: #34D399;
+      --amber: #FBBF24;
+      --rose: #F43F5E;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
       -webkit-tap-highlight-color: transparent;
     }
+
+    body {
+      background-color: var(--bg-main);
+      color: var(--text-main);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      min-height: 100vh;
+      max-width: 440px;
+      margin: 0 auto;
+      border-left: 1px solid var(--border);
+      border-right: 1px solid var(--border);
+      padding-bottom: 84px;
+    }
+
+    /* Header */
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 16px;
+      background: rgba(7, 11, 20, 0.92);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .ble-btn {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: #0F172A;
+      border: 1px solid #334155;
+      color: var(--text-main);
+      padding: 6px 12px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .ble-btn:hover { background: #1E293B; }
+
+    .status-dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: var(--amber);
+      display: inline-block;
+    }
+
+    .status-dot.connected { background: var(--emerald); }
+    .status-dot.error { background: var(--rose); }
+
+    .brand-title {
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0.14em;
+      color: var(--cyan);
+    }
+
+    .battery-pill {
+      background: #0F172A;
+      border: 1px solid var(--border);
+      padding: 5px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--emerald);
+    }
+
+    /* Layout & Cards */
+    main {
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .tab-section {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .hidden { display: none !important; }
+
     .card {
-      background-color: #111827;
-      border: 1px solid #1F2937;
-      border-radius: 1.25rem;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 18px;
     }
+
+    .card-accent {
+      border-left: 4px solid var(--cyan);
+    }
+
+    .row-between {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    h1 { font-size: 22px; font-weight: 700; }
+    h2 { font-size: 18px; font-weight: 700; }
+    h3 { font-size: 14px; font-weight: 700; }
+    .subtext { font-size: 12px; color: var(--text-muted); }
+
+    .streak-pill {
+      background: #0F172A;
+      border: 1px solid #334155;
+      color: var(--amber);
+      font-size: 12px;
+      font-weight: 600;
+      padding: 6px 12px;
+      border-radius: 999px;
+    }
+
+    /* Concentric Rings */
+    .ring-wrapper {
+      position: relative;
+      width: 210px;
+      height: 210px;
+      margin: 0 auto;
+    }
+
+    .ring-wrapper svg {
+      width: 100%;
+      height: 100%;
+      transform: rotate(-90deg);
+    }
+
     .ring-transition {
-      transition: stroke-dashoffset 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+      transition: stroke-dashoffset 0.5s ease;
     }
+
+    .ring-center {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      pointer-events: none;
+    }
+
+    .ring-pct { font-size: 36px; font-weight: 800; line-height: 1; }
+    .ring-vol { font-size: 12px; color: #67E8F9; margin-top: 6px; font-weight: 600; }
+    .ring-rem {
+      font-size: 10px;
+      color: var(--emerald);
+      background: rgba(6, 78, 59, 0.55);
+      border: 1px solid rgba(52, 211, 153, 0.35);
+      padding: 2px 9px;
+      border-radius: 999px;
+      margin-top: 6px;
+    }
+
+    .legend-row {
+      display: flex;
+      justify-content: center;
+      gap: 16px;
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 10px;
+    }
+
+    .legend-item { display: flex; align-items: center; gap: 6px; }
+    .dot-cyan { width: 9px; height: 9px; border-radius: 50%; background: var(--cyan); }
+    .dot-emerald { width: 9px; height: 9px; border-radius: 50%; background: var(--emerald); }
+    .dot-amber { width: 9px; height: 9px; border-radius: 50%; background: var(--amber); }
+
+    /* Buttons */
+    .sip-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin-top: 14px;
+    }
+
+    .btn-sip {
+      background: #1E293B;
+      border: 1px solid #334155;
+      color: var(--text-main);
+      padding: 10px 6px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .btn-sip span {
+      display: block;
+      font-size: 10px;
+      font-weight: 400;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    .btn-sip.primary {
+      background: var(--cyan);
+      border-color: var(--cyan);
+      color: #042F2E;
+    }
+
+    .btn-sip.primary span { color: #0F172A; font-weight: 600; }
+
+    .action-links {
+      display: flex;
+      justify-content: space-between;
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 12px;
+    }
+
+    .link-btn {
+      background: none;
+      border: none;
+      color: var(--emerald);
+      font-size: 11px;
+      cursor: pointer;
+      text-decoration: underline;
+    }
+
+    .link-btn.reset { color: var(--text-muted); }
+
+    /* Form Controls */
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    label {
+      display: block;
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-bottom: 4px;
+    }
+
+    input[type="number"], select {
+      width: 100%;
+      background: var(--bg-input);
+      border: 1px solid #334155;
+      color: var(--text-main);
+      padding: 9px 10px;
+      border-radius: 10px;
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .btn-full {
+      width: 100%;
+      margin-top: 12px;
+      padding: 11px;
+      border: none;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      background: linear-gradient(90deg, var(--cyan), var(--emerald));
+      color: #042F2E;
+    }
+
+    .btn-full.emerald {
+      background: var(--emerald);
+      color: #042F2E;
+    }
+
+    .plan-box {
+      margin-top: 12px;
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px;
+      font-size: 12px;
+      line-height: 1.5;
+      color: #CBD5E1;
+    }
+
+    .schedule-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6px;
+      margin-top: 10px;
+      font-size: 11px;
+    }
+
+    .schedule-pill {
+      background: #111827;
+      border: 1px solid var(--border);
+      padding: 6px 8px;
+      border-radius: 8px;
+    }
+
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .metric-val {
+      font-size: 24px;
+      font-weight: 800;
+      margin: 4px 0;
+    }
+
+    /* Analytics Rings Layout */
+    .analytics-ring-row {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-top: 12px;
+    }
+
+    .analytics-svg-box {
+      position: relative;
+      width: 165px;
+      height: 165px;
+      flex-shrink: 0;
+    }
+
+    .analytics-svg-box svg {
+      width: 100%;
+      height: 100%;
+      transform: rotate(-90deg);
+    }
+
+    .ring-stats-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      font-size: 12px;
+    }
+
+    .chart-box {
+      height: 190px;
+      margin-top: 12px;
+      position: relative;
+    }
+
+    .stat-strip {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      text-align: center;
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 8px;
+      margin-top: 10px;
+      font-size: 11px;
+    }
+
+    /* Sliders & Toggles */
+    input[type="range"] {
+      width: 100%;
+      margin: 12px 0 6px;
+      accent-color: var(--cyan);
+      cursor: pointer;
+    }
+
+    .unit-switch {
+      display: flex;
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 3px;
+      gap: 4px;
+    }
+
+    .unit-btn {
+      border: none;
+      background: transparent;
+      color: var(--text-muted);
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .unit-btn.active {
+      background: var(--cyan);
+      color: #042F2E;
+    }
+
+    .pref-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 0;
+      border-top: 1px solid var(--border);
+      font-size: 12px;
+    }
+
+    .pref-row:first-of-type { border-top: none; padding-top: 4px; }
+
+    /* Bottom Nav */
+    nav {
+      position: fixed;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 100%;
+      max-width: 440px;
+      background: rgba(7, 11, 20, 0.96);
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: space-around;
+      padding: 10px 0;
+      z-index: 50;
+    }
+
+    .nav-btn {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+      font-size: 11px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .nav-btn.active { color: var(--cyan); }
+    .nav-icon { font-size: 18px; }
   </style>
 </head>
-<body class="min-h-screen pb-24 max-w-md mx-auto relative border-x border-slate-800/80 shadow-2xl">
+<body>
 
-  <!-- Top Header & Live Web Bluetooth Bar -->
-  <header class="p-4 flex items-center justify-between border-b border-slate-800 bg-slate-950/90 sticky top-0 z-50 backdrop-blur">
-    <button id="ble-connect-btn" type="button" class="flex items-center gap-2 bg-slate-900 hover:bg-slate-800 border border-slate-700 px-3 py-1.5 rounded-full transition cursor-pointer">
-      <span id="ble-dot" class="inline-block w-2.5 h-2.5 rounded-full bg-amber-400"></span>
-      <span id="ble-status-text" class="text-xs font-semibold text-slate-200">Connect Bottle</span>
+  <header>
+    <button id="ble-connect-btn" type="button" class="ble-btn">
+      <span id="ble-dot" class="status-dot"></span>
+      <span id="ble-status-text">Connect Bottle</span>
     </button>
-
-    <div class="text-xs font-extrabold tracking-widest text-cyan-400 uppercase">AURA-SYNC</div>
-
-    <div class="flex items-center gap-2 text-xs">
-      <span id="battery-badge" class="bg-slate-900 border border-slate-800 px-2.5 py-1 rounded-full text-emerald-400 font-medium">⚡ 88%</span>
-    </div>
+    <div class="brand-title">AURA-SYNC</div>
+    <div id="battery-badge" class="battery-pill">⚡ 88%</div>
   </header>
 
-  <!-- Main Content -->
-  <main class="p-4 space-y-5">
-
+  <main>
     <!-- ==================== TAB 1: HOME ==================== -->
-    <section id="tab-home" class="space-y-4">
-      <div class="flex justify-between items-center">
+    <section id="tab-home" class="tab-section">
+      <div class="row-between">
         <div>
-          <p class="text-xs text-slate-400">Welcome back 👋</p>
-          <h1 class="text-2xl font-bold text-white">Hydration Today</h1>
+          <p class="subtext">Welcome back 👋</p>
+          <h1>Hydration Today</h1>
         </div>
-        <span id="streak-badge" class="bg-slate-900 border border-slate-700 text-amber-400 text-xs px-3 py-1.5 rounded-full font-semibold">🔥 5 Day Streak</span>
+        <span class="streak-pill">🔥 5 Day Streak</span>
       </div>
 
-      <!-- Main Concentric Hydration Ring Card -->
-      <div class="card p-5 text-center space-y-4">
-        <div class="relative w-56 h-56 mx-auto flex items-center justify-center">
-          <svg class="w-full h-full -rotate-90" viewBox="0 0 200 200">
+      <!-- Concentric Progress Ring Card -->
+      <div class="card">
+        <div class="ring-wrapper">
+          <svg viewBox="0 0 200 200">
             <circle cx="100" cy="100" r="84" stroke="#1E293B" stroke-width="14" fill="none" />
             <circle id="home-ring-intake" class="ring-transition" cx="100" cy="100" r="84" stroke="#22D3EE" stroke-width="14" stroke-linecap="round" fill="none" stroke-dasharray="527.79" stroke-dashoffset="263.89" />
-
             <circle cx="100" cy="100" r="64" stroke="#1E293B" stroke-width="10" fill="none" />
             <circle id="home-ring-bottle" class="ring-transition" cx="100" cy="100" r="64" stroke="#34D399" stroke-width="10" stroke-linecap="round" fill="none" stroke-dasharray="402.12" stroke-dashoffset="160.85" />
           </svg>
-
-          <div class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-            <span id="pct-text" class="text-4xl font-extrabold text-white">50%</span>
-            <span class="text-xs font-medium text-cyan-300 mt-1">
-              <span id="consumed-text">1,250</span> / <span id="target-text">2,680</span> ml
-            </span>
-            <span id="remaining-text" class="text-[10px] text-emerald-400 mt-1 bg-emerald-950/80 px-2.5 py-0.5 rounded-full border border-emerald-800/70">
-              1,430 ml remaining
-            </span>
+          <div class="ring-center">
+            <span id="pct-text" class="ring-pct">50%</span>
+            <span class="ring-vol"><span id="consumed-text">1,250</span> / <span id="target-text">2,680</span> ml</span>
+            <span id="remaining-text" class="ring-rem">1,430 ml remaining</span>
           </div>
         </div>
 
-        <div class="flex justify-center gap-4 text-[11px] text-slate-400">
-          <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-cyan-400"></span>Daily Goal</span>
-          <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-emerald-400"></span>Bottle Level (<span id="bottle-pct-label">60%</span>)</span>
+        <div class="legend-row">
+          <span class="legend-item"><span class="dot-cyan"></span>Daily Goal</span>
+          <span class="legend-item"><span class="dot-emerald"></span>Bottle Level (<span id="bottle-pct-label">60%</span>)</span>
         </div>
 
-        <div class="grid grid-cols-3 gap-2 pt-1">
-          <button type="button" onclick="logSip(150)" class="bg-slate-800 hover:bg-slate-700 active:scale-95 text-slate-100 font-semibold py-2.5 rounded-xl border border-slate-700 text-xs transition cursor-pointer">
-            +150 ml<br><span class="text-[10px] text-slate-400">Small Sip</span>
-          </button>
-          <button type="button" onclick="logSip(250)" class="bg-cyan-500 hover:bg-cyan-400 active:scale-95 text-slate-950 font-bold py-2.5 rounded-xl text-xs transition shadow-lg shadow-cyan-950/50 cursor-pointer">
-            +250 ml<br><span class="text-[10px] text-slate-900">Standard Sip</span>
-          </button>
-          <button type="button" onclick="logSip(500)" class="bg-slate-800 hover:bg-slate-700 active:scale-95 text-slate-100 font-semibold py-2.5 rounded-xl border border-slate-700 text-xs transition cursor-pointer">
-            +500 ml<br><span class="text-[10px] text-slate-400">Full Gulp</span>
-          </button>
+        <div class="sip-grid">
+          <button type="button" class="btn-sip" data-sip="150">+150 ml<span>Small Sip</span></button>
+          <button type="button" class="btn-sip primary" data-sip="250">+250 ml<span>Standard Sip</span></button>
+          <button type="button" class="btn-sip" data-sip="500">+500 ml<span>Full Gulp</span></button>
         </div>
 
-        <div class="flex justify-between items-center text-xs text-slate-400 pt-1 px-1">
-          <button type="button" onclick="refillBottle()" class="text-emerald-400 hover:underline cursor-pointer">Refill Bottle (100%)</button>
-          <span>Last sip: <strong id="last-sip-time" class="text-slate-300">Just now</strong></span>
-          <button type="button" onclick="resetIntake()" class="text-slate-400 hover:text-rose-400 underline cursor-pointer">Reset</button>
+        <div class="action-links">
+          <button type="button" id="refill-btn" class="link-btn">Refill Bottle (100%)</button>
+          <span>Last sip: <strong id="last-sip-time">Just now</strong></span>
+          <button type="button" id="reset-btn" class="link-btn reset">Reset</button>
         </div>
       </div>
 
-      <!-- Biometric & Smart Hydration Engine -->
-      <div class="card p-4 space-y-3 border-l-4 border-l-cyan-400">
-        <div class="flex items-center justify-between">
-          <div class="flex items-center gap-2">
-            <span class="p-2 bg-slate-800 rounded-lg text-cyan-400">🧠</span>
-            <div>
-              <h2 class="text-sm font-bold text-white">Smart Hydration Planner</h2>
-              <p class="text-[11px] text-slate-400">Tailors target & pacing to your biometrics</p>
-            </div>
+      <!-- Smart Biometric Hydration Planner -->
+      <div class="card card-accent">
+        <div class="row-between">
+          <div>
+            <h3>🧠 Smart Hydration Planner</h3>
+            <p class="subtext">Tailors target & pacing to age, weight & activity</p>
           </div>
-          <span id="oz-badge" class="text-[11px] font-semibold bg-cyan-950 text-cyan-300 border border-cyan-800 px-2 py-0.5 rounded-md">91 oz / day</span>
+          <span id="oz-badge" class="streak-pill" style="color:#67E8F9;">91 oz / day</span>
         </div>
 
-        <div class="grid grid-cols-2 gap-3 text-xs pt-1">
+        <div class="form-grid">
           <div>
-            <label for="user-weight" class="block text-slate-400 mb-1">Weight (lbs)</label>
-            <input type="number" id="user-weight" value="160" min="50" max="500" class="w-full bg-slate-950 border border-slate-700 rounded-lg p-2.5 text-white font-semibold focus:outline-none focus:border-cyan-400" />
+            <label for="user-weight">Weight (lbs)</label>
+            <input type="number" id="user-weight" value="160" min="50" max="500" />
           </div>
           <div>
-            <label for="user-age" class="block text-slate-400 mb-1">Age (Years)</label>
-            <input type="number" id="user-age" value="24" min="10" max="110" class="w-full bg-slate-950 border border-slate-700 rounded-lg p-2.5 text-white font-semibold focus:outline-none focus:border-cyan-400" />
+            <label for="user-age">Age (Years)</label>
+            <input type="number" id="user-age" value="24" min="10" max="110" />
           </div>
         </div>
 
-        <div class="text-xs">
-          <label for="user-activity" class="block text-slate-400 mb-1">Daily Activity Level</label>
-          <select id="user-activity" class="w-full bg-slate-950 border border-slate-700 rounded-lg p-2.5 text-white font-medium focus:outline-none focus:border-cyan-400">
+        <div style="margin-top: 10px;">
+          <label for="user-activity">Daily Activity Level</label>
+          <select id="user-activity">
             <option value="sedentary">Sedentary (Desk job, minimal exercise)</option>
             <option value="light">Lightly Active (1–3 days/week light exercise)</option>
             <option value="moderate" selected>Moderate (3–5 days/week workout)</option>
@@ -133,539 +547,531 @@
           </select>
         </div>
 
-        <button type="button" onclick="generateSmartSchedule()" class="w-full bg-gradient-to-r from-cyan-500 to-emerald-500 hover:from-cyan-400 hover:to-emerald-400 active:scale-98 text-slate-950 font-bold py-2.5 rounded-xl text-xs transition cursor-pointer">
-          ✨ Update Target & Build Hydration Schedule
-        </button>
+        <button type="button" id="update-plan-btn" class="btn-full">✨ Update Target & Build Hydration Schedule</button>
 
-        <div class="bg-slate-950/90 p-3.5 rounded-xl border border-slate-800 space-y-2 text-xs">
-          <div class="flex justify-between items-center">
-            <span class="font-bold text-cyan-400">Personalized Daily Plan:</span>
-            <span class="text-[10px] text-emerald-400 font-semibold">Auto-Synced</span>
+        <div class="plan-box">
+          <div class="row-between" style="margin-bottom: 6px;">
+            <strong style="color: var(--cyan);">Personalized Daily Plan:</strong>
+            <span style="font-size: 10px; color: var(--emerald); font-weight: 700;">Auto-Synced</span>
           </div>
-          <p id="ai-plan-text" class="text-slate-300 leading-relaxed"></p>
-          <div id="schedule-pills" class="grid grid-cols-2 gap-1.5 pt-1 text-[11px]"></div>
+          <p id="ai-plan-text"></p>
+          <div id="schedule-pills" class="schedule-grid"></div>
         </div>
       </div>
 
       <!-- Live Sensor Cards -->
-      <div class="grid grid-cols-2 gap-3">
-        <div class="card p-4 space-y-1">
-          <div class="flex justify-between items-center text-xs text-slate-400">
+      <div class="metrics-grid">
+        <div class="card">
+          <div class="row-between subtext">
             <span>Water Temp</span>
             <span>🌡️</span>
           </div>
-          <p class="text-2xl font-bold text-white"><span id="home-temp-display">18</span><span id="home-unit-display">°C</span></p>
-          <p class="text-[11px] text-emerald-400">Cool & Optimal</p>
+          <div class="metric-val"><span id="home-temp-display">18</span><span id="home-unit-display">°C</span></div>
+          <p style="font-size: 11px; color: var(--emerald);">Cool & Optimal</p>
         </div>
 
-        <div class="card p-4 space-y-1">
-          <div class="flex justify-between items-center text-xs text-slate-400">
+        <div class="card">
+          <div class="row-between subtext">
             <span>Water Purity</span>
             <span>💧</span>
           </div>
-          <p class="text-2xl font-bold text-white"><span id="home-tds-display">42</span> <span class="text-xs font-normal text-slate-400">PPM</span></p>
-          <p class="text-[11px] text-cyan-400">TDS Optimal (Pure)</p>
+          <div class="metric-val"><span id="home-tds-display">42</span> <span class="subtext">PPM</span></div>
+          <p style="font-size: 11px; color: var(--cyan);">TDS Optimal (Pure)</p>
         </div>
       </div>
     </section>
 
-    <!-- ==================== TAB 2: ANALYTICS (RINGS + SENSOR LOG) ==================== -->
-    <section id="tab-analytics" class="space-y-5 hidden">
-      <div class="flex justify-between items-start">
+    <!-- ==================== TAB 2: ANALYTICS ==================== -->
+    <section id="tab-analytics" class="tab-section hidden">
+      <div class="row-between">
         <div>
-          <h2 class="text-xl font-bold text-white">Hydration Rings & Insights</h2>
-          <p class="text-xs text-slate-400">Live sensor rings & water quality logs</p>
+          <h2>Hydration Rings & Insights</h2>
+          <p class="subtext">Live sensor rings & water quality logs</p>
         </div>
-        <div class="bg-slate-900 p-1 rounded-lg border border-slate-800 text-xs flex gap-1">
-          <button type="button" id="btn-view-day" onclick="setAnalyticsRange('day')" class="bg-cyan-500 px-2.5 py-1 rounded text-slate-950 font-bold cursor-pointer">Today</button>
-          <button type="button" id="btn-view-week" onclick="setAnalyticsRange('week')" class="px-2.5 py-1 text-slate-400 hover:text-white cursor-pointer">7-Day Avg</button>
+        <div class="unit-switch">
+          <button type="button" id="btn-view-day" class="unit-btn active">Today</button>
+          <button type="button" id="btn-view-week" class="unit-btn">7-Day</button>
         </div>
       </div>
 
-      <div class="card p-5 space-y-4">
-        <div class="flex justify-between items-center">
+      <div class="card">
+        <div class="row-between">
           <div>
-            <span class="text-[10px] font-bold uppercase text-cyan-400 tracking-wider">Data Output #1</span>
-            <h3 class="text-base font-bold text-white">Daily Hydration Rings</h3>
+            <span style="font-size: 10px; font-weight: 700; color: var(--cyan);">DATA OUTPUT #1</span>
+            <h3>Daily Hydration Rings</h3>
           </div>
-          <span id="analytics-pace-badge" class="text-xs bg-slate-800 border border-slate-700 px-2.5 py-1 rounded-lg text-cyan-300 font-medium">50% Complete</span>
+          <span id="analytics-pace-badge" class="streak-pill" style="color:#67E8F9;">47% Complete</span>
         </div>
 
-        <div class="flex items-center justify-around gap-4 py-2">
-          <div class="relative w-44 h-44 flex-shrink-0">
-            <svg class="w-full h-full -rotate-90" viewBox="0 0 200 200">
+        <div class="analytics-ring-row">
+          <div class="analytics-svg-box">
+            <svg viewBox="0 0 200 200">
               <circle cx="100" cy="100" r="86" stroke="#1E293B" stroke-width="13" fill="none" />
               <circle id="ring-stat-volume" class="ring-transition" cx="100" cy="100" r="86" stroke="#22D3EE" stroke-width="13" stroke-linecap="round" fill="none" stroke-dasharray="540.35" stroke-dashoffset="270" />
-
               <circle cx="100" cy="100" r="68" stroke="#1E293B" stroke-width="13" fill="none" />
               <circle id="ring-stat-pace" class="ring-transition" cx="100" cy="100" r="68" stroke="#34D399" stroke-width="13" stroke-linecap="round" fill="none" stroke-dasharray="427.26" stroke-dashoffset="106" />
-
               <circle cx="100" cy="100" r="50" stroke="#1E293B" stroke-width="13" fill="none" />
               <circle id="ring-stat-quality" class="ring-transition" cx="100" cy="100" r="50" stroke="#FBBF24" stroke-width="13" stroke-linecap="round" fill="none" stroke-dasharray="314.16" stroke-dashoffset="25" />
             </svg>
-            <div class="absolute inset-0 flex flex-col items-center justify-center">
-              <span id="ring-center-pct" class="text-2xl font-extrabold text-white">50%</span>
-              <span class="text-[10px] text-slate-400 uppercase tracking-wider">Hydrated</span>
+            <div class="ring-center">
+              <span id="ring-center-pct" style="font-size: 22px; font-weight: 800;">47%</span>
+              <span style="font-size: 9px; color: var(--text-muted);">HYDRATED</span>
             </div>
           </div>
 
-          <div class="space-y-3 text-xs flex-1">
+          <div class="ring-stats-list">
             <div>
-              <div class="flex items-center gap-1.5 font-bold text-cyan-400">
-                <span class="w-2.5 h-2.5 rounded-full bg-cyan-400"></span> Intake Goal
-              </div>
-              <p class="text-slate-300 font-semibold mt-0.5"><span id="ring-vol-val">1,250 / 2,680</span> ml</p>
+              <div class="legend-item" style="color: var(--cyan); font-weight: 700;"><span class="dot-cyan"></span>Intake Goal</div>
+              <div id="ring-vol-val" style="font-weight: 600; margin-top: 2px;">1,250 / 2,680 ml</div>
             </div>
             <div>
-              <div class="flex items-center gap-1.5 font-bold text-emerald-400">
-                <span class="w-2.5 h-2.5 rounded-full bg-emerald-400"></span> Sip Consistency
-              </div>
-              <p id="ring-pace-val" class="text-slate-300 font-semibold mt-0.5">63% On Schedule</p>
+              <div class="legend-item" style="color: var(--emerald); font-weight: 700;"><span class="dot-emerald"></span>Sip Consistency</div>
+              <div id="ring-pace-val" style="font-weight: 600; margin-top: 2px;">63% On Schedule</div>
             </div>
             <div>
-              <div class="flex items-center gap-1.5 font-bold text-amber-400">
-                <span class="w-2.5 h-2.5 rounded-full bg-amber-400"></span> Water Quality
-              </div>
-              <p id="ring-qual-val" class="text-slate-300 font-semibold mt-0.5">93% Optimal (42 PPM)</p>
+              <div class="legend-item" style="color: var(--amber); font-weight: 700;"><span class="dot-amber"></span>Water Quality</div>
+              <div id="ring-qual-val" style="font-weight: 600; margin-top: 2px;">93% Optimal (42 PPM)</div>
             </div>
           </div>
         </div>
       </div>
 
-      <div class="card p-4 space-y-3">
-        <div class="flex justify-between items-center">
+      <div class="card">
+        <div class="row-between">
           <div>
-            <span class="text-[10px] font-bold uppercase text-emerald-400 tracking-wider">Data Output #2</span>
-            <h3 class="text-sm font-bold text-white">Water Quality & Temperature Log</h3>
+            <span style="font-size: 10px; font-weight: 700; color: var(--emerald);">DATA OUTPUT #2</span>
+            <h3>Water Quality & Temperature Log</h3>
           </div>
-          <span class="text-xs bg-emerald-950 border border-emerald-800 text-emerald-400 px-2.5 py-1 rounded-lg font-medium">Purity: Optimal</span>
+          <span class="streak-pill" style="color: var(--emerald);">Purity: Optimal</span>
         </div>
-        <div class="grid grid-cols-2 gap-2 text-center text-xs py-2 bg-slate-950/70 rounded-xl border border-slate-800/80">
-          <div><span class="text-slate-400">Avg Temp Today</span><strong class="text-cyan-400 block text-sm mt-0.5">17.5°C</strong></div>
-          <div><span class="text-slate-400">Current TDS Purity</span><strong class="text-emerald-400 block text-sm mt-0.5">42 PPM (Pure)</strong></div>
+
+        <div class="stat-strip">
+          <div><span class="subtext">Avg Temp Today</span><strong style="display:block; color: var(--cyan); margin-top: 2px;">17.5°C</strong></div>
+          <div><span class="subtext">Current TDS Purity</span><strong style="display:block; color: var(--emerald); margin-top: 2px;">42 PPM (Pure)</strong></div>
         </div>
-        <div class="h-48">
+
+        <div class="chart-box">
           <canvas id="qualityChart"></canvas>
         </div>
       </div>
     </section>
 
-    <!-- ==================== TAB 3: CONTROLS & SETTINGS ==================== -->
-    <section id="tab-controls" class="space-y-4 hidden">
-      <h2 class="text-xl font-bold text-white">Smart Bottle Controls</h2>
+    <!-- ==================== TAB 3: CONTROLS ==================== -->
+    <section id="tab-controls" class="tab-section hidden">
+      <h2>Smart Bottle Controls</h2>
 
-      <div class="card p-4 space-y-3">
-        <div class="flex justify-between items-center">
+      <div class="card">
+        <div class="row-between">
           <div>
-            <h3 class="text-sm font-bold text-white">Target Water Temp Alert</h3>
-            <p class="text-xs text-slate-400">Notify when water warms above target</p>
+            <h3>Target Water Temp Alert</h3>
+            <p class="subtext">Notify when water warms above target</p>
           </div>
-          <span class="text-xs font-bold bg-cyan-950 border border-cyan-800 text-cyan-300 px-3 py-1 rounded-lg" id="temp-slider-badge">18°C</span>
+          <span id="temp-slider-badge" class="streak-pill" style="color: var(--cyan);">18°C</span>
         </div>
-        <input id="temp-alert-slider" type="range" min="4" max="30" value="18" class="w-full accent-cyan-400 bg-slate-800 rounded-lg h-2 cursor-pointer" />
-        <div class="flex justify-between text-[10px] text-slate-400">
+        <input id="temp-alert-slider" type="range" min="4" max="30" value="18" />
+        <div class="row-between subtext" style="font-size: 10px;">
           <span id="scale-min">4°C (Ice Cold)</span>
           <span id="scale-mid">18°C (Recommended)</span>
           <span id="scale-max">30°C (Warm)</span>
         </div>
       </div>
 
-      <div class="card p-4 space-y-3">
-        <div class="flex justify-between items-center">
+      <div class="card">
+        <div class="row-between">
           <div>
-            <h3 class="text-sm font-bold text-white">Find My Smart Bottle</h3>
-            <p class="text-xs text-slate-400">Trigger acoustic chime & LED ring flash via BLE</p>
+            <h3>Find My Smart Bottle</h3>
+            <p class="subtext">Trigger acoustic chime & LED ring flash</p>
           </div>
-          <span class="text-cyan-400 text-base">📍</span>
+          <span>📍</span>
         </div>
-        <button type="button" id="chime-btn" onclick="triggerBottleChime()" class="w-full bg-emerald-500 hover:bg-emerald-400 active:scale-98 text-slate-950 font-bold py-3 rounded-xl transition flex items-center justify-center gap-2 cursor-pointer">
-          🔊 Play Bottle Chime Sound
-        </button>
+        <button type="button" id="chime-btn" class="btn-full emerald">🔊 Play Bottle Chime Sound</button>
       </div>
 
-      <div class="card p-4 space-y-4 text-xs">
-        <h3 class="font-bold text-white text-sm">Preferences & Hardware</h3>
+      <div class="card">
+        <h3 style="margin-bottom: 8px;">Preferences & Hardware</h3>
 
-        <div class="flex justify-between items-center">
-          <span class="text-slate-300 font-medium">Temperature Unit</span>
-          <div class="bg-slate-950 p-1 rounded-lg border border-slate-800 flex gap-1">
-            <button type="button" id="unit-c-btn" onclick="setTempUnit('C')" class="bg-cyan-500 text-slate-950 px-3 py-1 rounded font-bold cursor-pointer">°C</button>
-            <button type="button" id="unit-f-btn" onclick="setTempUnit('F')" class="text-slate-400 hover:text-white px-3 py-1 rounded font-bold cursor-pointer">°F</button>
+        <div class="pref-row">
+          <span>Temperature Unit</span>
+          <div class="unit-switch">
+            <button type="button" id="unit-c-btn" class="unit-btn active">°C</button>
+            <button type="button" id="unit-f-btn" class="unit-btn">°F</button>
           </div>
         </div>
 
-        <div class="flex justify-between items-center pt-3 border-t border-slate-800">
+        <div class="pref-row">
           <div>
-            <span class="text-slate-200 font-medium block">Auto UV-C Cap Sterilization</span>
-            <span class="text-[10px] text-slate-400">Purifies water every 2 hours automatically</span>
+            <strong>Auto UV-C Cap Sterilization</strong>
+            <p class="subtext" style="font-size: 10px;">Purifies water every 2 hours automatically</p>
           </div>
-          <input type="checkbox" id="uvc-toggle" checked class="w-5 h-5 accent-cyan-400 rounded cursor-pointer" />
+          <input type="checkbox" id="uvc-toggle" checked style="width: 18px; height: 18px; accent-color: var(--cyan);" />
         </div>
 
-        <div class="flex justify-between items-center pt-3 border-t border-slate-800">
+        <div class="pref-row">
           <div>
-            <span class="text-slate-200 font-medium block">Simulate Live Bottle Sensor Stream</span>
-            <span class="text-[10px] text-slate-400">Test automatic sip detection without hardware</span>
+            <strong>Simulate Live Bottle Sensor Stream</strong>
+            <p class="subtext" style="font-size: 10px;">Auto-log sips every 4 seconds for testing</p>
           </div>
-          <button type="button" id="sim-stream-btn" onclick="toggleSensorSimulation()" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-cyan-300 px-3 py-1.5 rounded-lg font-semibold cursor-pointer">
-            Start Demo Stream
-          </button>
+          <button type="button" id="sim-stream-btn" class="unit-btn active">Start Demo</button>
         </div>
       </div>
     </section>
-
   </main>
 
-  <!-- Fixed Bottom Navigation -->
-  <nav class="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-md bg-slate-950/95 border-t border-slate-800 backdrop-blur px-6 py-2.5 flex justify-around items-center z-50">
-    <button type="button" onclick="switchTab('home')" id="nav-home" class="flex flex-col items-center gap-1 text-cyan-400 cursor-pointer">
-      <span class="text-lg">🏠</span>
-      <span class="text-[10px] font-bold">Home</span>
+  <nav>
+    <button type="button" id="nav-home" class="nav-btn active">
+      <span class="nav-icon">🏠</span>
+      <span>Home</span>
     </button>
-    <button type="button" onclick="switchTab('analytics')" id="nav-analytics" class="flex flex-col items-center gap-1 text-slate-500 hover:text-slate-300 cursor-pointer">
-      <span class="text-lg">⭕</span>
-      <span class="text-[10px] font-bold">Rings & Logs</span>
+    <button type="button" id="nav-analytics" class="nav-btn">
+      <span class="nav-icon">⭕</span>
+      <span>Rings & Logs</span>
     </button>
-    <button type="button" onclick="switchTab('controls')" id="nav-controls" class="flex flex-col items-center gap-1 text-slate-500 hover:text-slate-300 cursor-pointer">
-      <span class="text-lg">⚙️</span>
-      <span class="text-[10px] font-bold">Controls</span>
+    <button type="button" id="nav-controls" class="nav-btn">
+      <span class="nav-icon">⚙️</span>
+      <span>Controls</span>
     </button>
   </nav>
 
   <script>
-    const state = {
-      consumedMl: 1250,
-      targetMl: 2680,
-      bottleCapacityMl: 750,
-      bottleCurrentMl: 450,
-      tempCelsius: 18,
-      unit: 'C',
-      tdsPpm: 42,
-      sipCount: 5,
-      bleDevice: null,
-      bleCharacteristic: null,
-      simInterval: null,
-      qualityChart: null
-    };
-
-    function computeRecommendedIntakeMl() {
-      const weightLbs = Math.max(50, parseFloat(document.getElementById('user-weight').value) || 160);
-      const age = Math.max(10, parseFloat(document.getElementById('user-age').value) || 24);
-      const activity = document.getElementById('user-activity').value;
-
-      let baseOz = weightLbs * 0.55;
-      if (age < 30) baseOz *= 1.05;
-      else if (age > 55) baseOz *= 0.95;
-
-      const activityBonusOz = {
-        sedentary: 0,
-        light: 12,
-        moderate: 20,
-        active: 32,
-        athlete: 44
+    document.addEventListener('DOMContentLoaded', () => {
+      const state = {
+        consumedMl: 1250,
+        targetMl: 2680,
+        bottleCapacityMl: 750,
+        bottleCurrentMl: 450,
+        tempCelsius: 18,
+        unit: 'C',
+        tdsPpm: 42,
+        sipCount: 5,
+        bleDevice: null,
+        simInterval: null,
+        qualityChart: null
       };
 
-      const totalOz = Math.round(baseOz + (activityBonusOz[activity] || 20));
-      const totalMl = Math.round((totalOz * 29.5735) / 10) * 10;
-      state.targetMl = totalMl;
-      document.getElementById('oz-badge').innerText = `${totalOz} oz / day`;
-      return { totalMl, totalOz, weightLbs, age, activity };
-    }
+      function computeRecommendedIntakeMl() {
+        const weightLbs = Math.max(50, parseFloat(document.getElementById('user-weight').value) || 160);
+        const age = Math.max(10, parseFloat(document.getElementById('user-age').value) || 24);
+        const activity = document.getElementById('user-activity').value;
 
-    function generateSmartSchedule() {
-      const { totalMl, totalOz, weightLbs, age, activity } = computeRecommendedIntakeMl();
-      const remaining = Math.max(0, totalMl - state.consumedMl);
-      const bottlesNeeded = (totalMl / state.bottleCapacityMl).toFixed(1);
+        let baseOz = weightLbs * 0.55;
+        if (age < 30) baseOz *= 1.05;
+        else if (age > 55) baseOz *= 0.95;
 
-      const activityAdvice = {
-        sedentary: 'Steady micro-sips keep cognitive focus sharp without overloading.',
-        light: 'Add an extra 250 ml glass 30 minutes before light movement.',
-        moderate: 'Drink 350 ml before your workout and 400 ml within 30 mins after.',
-        active: 'High metabolic turnover: pair water with electrolytes during intense sessions.',
-        athlete: 'Elevated sweat loss detected: drink on a strict 45-minute timer all day.'
+        const activityBonusOz = {
+          sedentary: 0,
+          light: 12,
+          moderate: 20,
+          active: 32,
+          athlete: 44
+        };
+
+        const totalOz = Math.round(baseOz + (activityBonusOz[activity] || 20));
+        const totalMl = Math.round((totalOz * 29.5735) / 10) * 10;
+        state.targetMl = totalMl;
+        document.getElementById('oz-badge').textContent = `${totalOz} oz / day`;
+        return { totalMl, totalOz, weightLbs, age, activity };
+      }
+
+      function generateSmartSchedule() {
+        const { totalMl, totalOz, weightLbs, age, activity } = computeRecommendedIntakeMl();
+        const remaining = Math.max(0, totalMl - state.consumedMl);
+        const bottlesNeeded = (totalMl / state.bottleCapacityMl).toFixed(1);
+
+        const activityAdvice = {
+          sedentary: 'Steady micro-sips keep cognitive focus sharp without overloading.',
+          light: 'Add an extra 250 ml glass 30 minutes before light movement.',
+          moderate: 'Drink 350 ml before your workout and 400 ml within 30 mins after.',
+          active: 'High metabolic turnover: pair water with electrolytes during intense sessions.',
+          athlete: 'Elevated sweat loss detected: drink on a strict 45-minute timer all day.'
+        };
+
+        document.getElementById('ai-plan-text').innerHTML =
+          `Based on <strong>${weightLbs} lbs</strong>, age <strong>${age}</strong>, and <strong>${activity}</strong> output, your hydrated goal is <strong>${totalMl.toLocaleString()} ml (${totalOz} oz)</strong> (~<strong>${bottlesNeeded}</strong> full bottles). ${activityAdvice[activity]} ${remaining > 0 ? `You need <strong>${remaining.toLocaleString()} ml</strong> more today.` : 'You have reached your daily hydration benchmark!'}`;
+
+        const morningMl = Math.round(totalMl * 0.3);
+        const middayMl = Math.round(totalMl * 0.35);
+        const afternoonMl = Math.round(totalMl * 0.25);
+        const eveningMl = Math.max(0, totalMl - morningMl - middayMl - afternoonMl);
+
+        document.getElementById('schedule-pills').innerHTML = `
+          <div class="schedule-pill"><strong style="color:var(--cyan);">8–11 AM:</strong> ${morningMl} ml</div>
+          <div class="schedule-pill"><strong style="color:var(--emerald);">11 AM–3 PM:</strong> ${middayMl} ml</div>
+          <div class="schedule-pill"><strong style="color:var(--amber);">3–7 PM:</strong> ${afternoonMl} ml</div>
+          <div class="schedule-pill"><strong style="color:#C084FC;">7–10 PM:</strong> ${eveningMl} ml</div>
+        `;
+
+        refreshAllUI();
+      }
+
+      function refreshAllUI() {
+        const pct = Math.min(100, Math.round((state.consumedMl / state.targetMl) * 100));
+        const bottlePct = Math.min(100, Math.round((state.bottleCurrentMl / state.bottleCapacityMl) * 100));
+        const remainingMl = Math.max(0, state.targetMl - state.consumedMl);
+
+        document.getElementById('pct-text').textContent = `${pct}%`;
+        document.getElementById('consumed-text').textContent = state.consumedMl.toLocaleString();
+        document.getElementById('target-text').textContent = state.targetMl.toLocaleString();
+        document.getElementById('bottle-pct-label').textContent = `${bottlePct}%`;
+        document.getElementById('remaining-text').textContent =
+          remainingMl > 0 ? `${remainingMl.toLocaleString()} ml remaining` : '🎉 Daily Goal Reached!';
+
+        const homeIntakeCirc = 527.79;
+        document.getElementById('home-ring-intake').style.strokeDashoffset =
+          String(homeIntakeCirc - (pct / 100) * homeIntakeCirc);
+
+        const homeBottleCirc = 402.12;
+        document.getElementById('home-ring-bottle').style.strokeDashoffset =
+          String(homeBottleCirc - (bottlePct / 100) * homeBottleCirc);
+
+        const pacePct = Math.min(100, Math.round((state.sipCount / 8) * 100));
+        const qualityPct = Math.max(60, Math.min(100, 100 - Math.max(0, state.tdsPpm - 35)));
+
+        document.getElementById('analytics-pace-badge').textContent = `${pct}% Complete`;
+        document.getElementById('ring-center-pct').textContent = `${pct}%`;
+        document.getElementById('ring-vol-val').textContent = `${state.consumedMl.toLocaleString()} / ${state.targetMl.toLocaleString()} ml`;
+        document.getElementById('ring-pace-val').textContent = `${pacePct}% On Schedule (${state.sipCount} sips)`;
+        document.getElementById('ring-qual-val').textContent = `${qualityPct}% Optimal (${state.tdsPpm} PPM)`;
+
+        const r1 = 540.35;
+        const r2 = 427.26;
+        const r3 = 314.16;
+        document.getElementById('ring-stat-volume').style.strokeDashoffset = String(r1 - (pct / 100) * r1);
+        document.getElementById('ring-stat-pace').style.strokeDashoffset = String(r2 - (pacePct / 100) * r2);
+        document.getElementById('ring-stat-quality').style.strokeDashoffset = String(r3 - (qualityPct / 100) * r3);
+
+        const displayTemp = state.unit === 'C' ? state.tempCelsius : Math.round((state.tempCelsius * 9) / 5 + 32);
+        document.getElementById('home-temp-display').textContent = String(displayTemp);
+        document.getElementById('home-unit-display').textContent = `°${state.unit}`;
+        document.getElementById('home-tds-display').textContent = String(state.tdsPpm);
+      }
+
+      function logSip(ml) {
+        state.consumedMl += ml;
+        state.sipCount += 1;
+        state.bottleCurrentMl = Math.max(0, state.bottleCurrentMl - ml);
+        if (state.bottleCurrentMl === 0) state.bottleCurrentMl = state.bottleCapacityMl;
+        document.getElementById('last-sip-time').textContent = new Date().toLocaleTimeString([], {
+          hour: '2-digit',
+          minute: '2-digit'
+        });
+        generateSmartSchedule();
+      }
+
+      function switchTab(tabName) {
+        ['home', 'analytics', 'controls'].forEach((t) => {
+          document.getElementById(`tab-${t}`).classList.add('hidden');
+          document.getElementById(`nav-${t}`).classList.remove('active');
+        });
+        document.getElementById(`tab-${tabName}`).classList.remove('hidden');
+        document.getElementById(`nav-${tabName}`).classList.add('active');
+
+        if (tabName === 'analytics') renderQualityChart('day');
+      }
+
+      function renderQualityChart(range = 'day') {
+        const canvas = document.getElementById('qualityChart');
+        if (!canvas || typeof Chart === 'undefined') return;
+        const ctx = canvas.getContext('2d');
+        if (state.qualityChart) state.qualityChart.destroy();
+
+        const labels =
+          range === 'day'
+            ? ['8 AM', '10 AM', '12 PM', '2 PM', '4 PM', '6 PM']
+            : ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+        const tempData = range === 'day' ? [16.0, 17.0, 19.0, 18.0, 17.0, 18.0] : [17.2, 17.8, 18.1, 17.5, 17.0, 17.6, 17.9];
+        const tdsData = range === 'day' ? [45, 43, 42, 40, 41, 42] : [44, 42, 41, 43, 40, 42, 41];
+
+        state.qualityChart = new Chart(ctx, {
+          type: 'line',
+          data: {
+            labels,
+            datasets: [
+              {
+                label: 'Temp (°C)',
+                data: tempData,
+                borderColor: '#22D3EE',
+                backgroundColor: '#22D3EE',
+                tension: 0.4,
+                yAxisID: 'y'
+              },
+              {
+                label: 'Purity (PPM)',
+                data: tdsData,
+                borderColor: '#34D399',
+                backgroundColor: '#34D399',
+                borderDash: [4, 4],
+                tension: 0.4,
+                yAxisID: 'y1'
+              }
+            ]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: { labels: { color: '#94A3B8', font: { size: 10 } } }
+            },
+            scales: {
+              x: { grid: { display: false }, ticks: { color: '#94A3B8', font: { size: 10 } } },
+              y: { position: 'left', grid: { color: '#1E293B' }, ticks: { color: '#22D3EE', font: { size: 10 } } },
+              y1: { position: 'right', grid: { display: false }, ticks: { color: '#34D399', font: { size: 10 } } }
+            }
+          }
+        });
+      }
+
+      // Event Bindings
+      document.querySelectorAll('.btn-sip').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const ml = parseInt(btn.getAttribute('data-sip') || '250', 10);
+          logSip(ml);
+        });
+      });
+
+      document.getElementById('refill-btn').addEventListener('click', () => {
+        state.bottleCurrentMl = state.bottleCapacityMl;
+        refreshAllUI();
+      });
+
+      document.getElementById('reset-btn').addEventListener('click', () => {
+        state.consumedMl = 0;
+        state.sipCount = 0;
+        state.bottleCurrentMl = state.bottleCapacityMl;
+        document.getElementById('last-sip-time').textContent = 'Reset';
+        generateSmartSchedule();
+      });
+
+      document.getElementById('update-plan-btn').addEventListener('click', generateSmartSchedule);
+      document.getElementById('user-weight').addEventListener('input', generateSmartSchedule);
+      document.getElementById('user-age').addEventListener('input', generateSmartSchedule);
+      document.getElementById('user-activity').addEventListener('change', generateSmartSchedule);
+
+      document.getElementById('nav-home').addEventListener('click', () => switchTab('home'));
+      document.getElementById('nav-analytics').addEventListener('click', () => switchTab('analytics'));
+      document.getElementById('nav-controls').addEventListener('click', () => switchTab('controls'));
+
+      document.getElementById('btn-view-day').addEventListener('click', () => {
+        document.getElementById('btn-view-day').classList.add('active');
+        document.getElementById('btn-view-week').classList.remove('active');
+        renderQualityChart('day');
+      });
+
+      document.getElementById('btn-view-week').addEventListener('click', () => {
+        document.getElementById('btn-view-week').classList.add('active');
+        document.getElementById('btn-view-day').classList.remove('active');
+        renderQualityChart('week');
+      });
+
+      const slider = document.getElementById('temp-alert-slider');
+      const updateSliderText = () => {
+        const rawC = parseInt(slider.value, 10);
+        document.getElementById('temp-slider-badge').textContent =
+          state.unit === 'C' ? `${rawC}°C` : `${Math.round((rawC * 9) / 5 + 32)}°F`;
       };
+      slider.addEventListener('input', updateSliderText);
 
-      document.getElementById('ai-plan-text').innerHTML =
-        `Based on <strong>${weightLbs} lbs</strong>, age <strong>${age}</strong>, and <strong>${activity}</strong> output, your hydrated goal is <strong>${totalMl.toLocaleString()} ml (${totalOz} oz)</strong> (~<strong>${bottlesNeeded}</strong> full bottles). ${activityAdvice[activity]} ${remaining > 0 ? `You need <strong>${remaining.toLocaleString()} ml</strong> more today.` : 'You have hit your daily hydration benchmark!'}`;
-
-      const morningMl = Math.round(totalMl * 0.3);
-      const middayMl = Math.round(totalMl * 0.35);
-      const afternoonMl = Math.round(totalMl * 0.25);
-      const eveningMl = Math.max(0, totalMl - morningMl - middayMl - afternoonMl);
-
-      document.getElementById('schedule-pills').innerHTML = `
-        <div class="bg-slate-900 border border-slate-800 px-2.5 py-1.5 rounded-lg"><span class="text-cyan-400 font-bold">8–11 AM:</span> ${morningMl} ml</div>
-        <div class="bg-slate-900 border border-slate-800 px-2.5 py-1.5 rounded-lg"><span class="text-emerald-400 font-bold">11 AM–3 PM:</span> ${middayMl} ml</div>
-        <div class="bg-slate-900 border border-slate-800 px-2.5 py-1.5 rounded-lg"><span class="text-amber-400 font-bold">3–7 PM:</span> ${afternoonMl} ml</div>
-        <div class="bg-slate-900 border border-slate-800 px-2.5 py-1.5 rounded-lg"><span class="text-purple-400 font-bold">7–10 PM:</span> ${eveningMl} ml</div>
-      `;
-
-      refreshAllUI();
-    }
-
-    function refreshAllUI() {
-      const pct = Math.min(100, Math.round((state.consumedMl / state.targetMl) * 100));
-      const bottlePct = Math.min(100, Math.round((state.bottleCurrentMl / state.bottleCapacityMl) * 100));
-      const remainingMl = Math.max(0, state.targetMl - state.consumedMl);
-
-      document.getElementById('pct-text').innerText = `${pct}%`;
-      document.getElementById('consumed-text').innerText = state.consumedMl.toLocaleString();
-      document.getElementById('target-text').innerText = state.targetMl.toLocaleString();
-      document.getElementById('bottle-pct-label').innerText = `${bottlePct}%`;
-      document.getElementById('remaining-text').innerText =
-        remainingMl > 0 ? `${remainingMl.toLocaleString()} ml remaining` : '🎉 Daily Goal Reached!';
-
-      const homeIntakeCirc = 527.79;
-      document.getElementById('home-ring-intake').style.strokeDashoffset =
-        homeIntakeCirc - (pct / 100) * homeIntakeCirc;
-
-      const homeBottleCirc = 402.12;
-      document.getElementById('home-ring-bottle').style.strokeDashoffset =
-        homeBottleCirc - (bottlePct / 100) * homeBottleCirc;
-
-      const pacePct = Math.min(100, Math.round((state.sipCount / 8) * 100));
-      const qualityPct = Math.max(60, Math.min(100, 100 - Math.max(0, state.tdsPpm - 35)));
-
-      document.getElementById('analytics-pace-badge').innerText = `${pct}% Complete`;
-      document.getElementById('ring-center-pct').innerText = `${pct}%`;
-      document.getElementById('ring-vol-val').innerText = `${state.consumedMl.toLocaleString()} / ${state.targetMl.toLocaleString()} ml`;
-      document.getElementById('ring-pace-val').innerText = `${pacePct}% On Schedule (${state.sipCount} sips)`;
-      document.getElementById('ring-qual-val').innerText = `${qualityPct}% Optimal (${state.tdsPpm} PPM)`;
-
-      const r1 = 540.35;
-      const r2 = 427.26;
-      const r3 = 314.16;
-      document.getElementById('ring-stat-volume').style.strokeDashoffset = r1 - (pct / 100) * r1;
-      document.getElementById('ring-stat-pace').style.strokeDashoffset = r2 - (pacePct / 100) * r2;
-      document.getElementById('ring-stat-quality').style.strokeDashoffset = r3 - (qualityPct / 100) * r3;
-
-      const displayTemp = state.unit === 'C' ? state.tempCelsius : Math.round((state.tempCelsius * 9) / 5 + 32);
-      document.getElementById('home-temp-display').innerText = displayTemp;
-      document.getElementById('home-unit-display').innerText = `°${state.unit}`;
-      document.getElementById('home-tds-display').innerText = state.tdsPpm;
-    }
-
-    function logSip(ml) {
-      state.consumedMl += ml;
-      state.sipCount += 1;
-      state.bottleCurrentMl = Math.max(0, state.bottleCurrentMl - ml);
-      if (state.bottleCurrentMl === 0) state.bottleCurrentMl = state.bottleCapacityMl;
-      document.getElementById('last-sip-time').innerText = new Date().toLocaleTimeString([], {
-        hour: '2-digit',
-        minute: '2-digit'
+      document.getElementById('unit-c-btn').addEventListener('click', () => {
+        state.unit = 'C';
+        document.getElementById('unit-c-btn').classList.add('active');
+        document.getElementById('unit-f-btn').classList.remove('active');
+        document.getElementById('scale-min').textContent = '4°C (Ice Cold)';
+        document.getElementById('scale-mid').textContent = '18°C (Recommended)';
+        document.getElementById('scale-max').textContent = '30°C (Warm)';
+        updateSliderText();
+        refreshAllUI();
       });
-      generateSmartSchedule();
-    }
 
-    function refillBottle() {
-      state.bottleCurrentMl = state.bottleCapacityMl;
-      refreshAllUI();
-    }
-
-    function resetIntake() {
-      state.consumedMl = 0;
-      state.sipCount = 0;
-      state.bottleCurrentMl = state.bottleCapacityMl;
-      document.getElementById('last-sip-time').innerText = 'Reset';
-      generateSmartSchedule();
-    }
-
-    function switchTab(tabName) {
-      ['home', 'analytics', 'controls'].forEach((t) => {
-        document.getElementById(`tab-${t}`).classList.add('hidden');
-        document.getElementById(`nav-${t}`).className =
-          'flex flex-col items-center gap-1 text-slate-500 hover:text-slate-300 cursor-pointer';
+      document.getElementById('unit-f-btn').addEventListener('click', () => {
+        state.unit = 'F';
+        document.getElementById('unit-f-btn').classList.add('active');
+        document.getElementById('unit-c-btn').classList.remove('active');
+        document.getElementById('scale-min').textContent = '39°F (Ice Cold)';
+        document.getElementById('scale-mid').textContent = '64°F (Recommended)';
+        document.getElementById('scale-max').textContent = '86°F (Warm)';
+        updateSliderText();
+        refreshAllUI();
       });
-      document.getElementById(`tab-${tabName}`).classList.remove('hidden');
-      document.getElementById(`nav-${tabName}`).className =
-        'flex flex-col items-center gap-1 text-cyan-400 cursor-pointer';
 
-      if (tabName === 'analytics') renderQualityChart();
-    }
+      document.getElementById('chime-btn').addEventListener('click', () => {
+        const btn = document.getElementById('chime-btn');
+        btn.textContent = '🔔 Chiming & Flashing LED on Bottle...';
+        try {
+          const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+          if (AudioContextClass) {
+            const audioCtx = new AudioContextClass();
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(880, audioCtx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(1320, audioCtx.currentTime + 0.25);
+            gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.5);
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start();
+            osc.stop(audioCtx.currentTime + 0.5);
+          }
+        } catch (_) {}
+        setTimeout(() => {
+          btn.textContent = '🔊 Play Bottle Chime Sound';
+        }, 2000);
+      });
 
-    function setAnalyticsRange(range) {
-      const dayBtn = document.getElementById('btn-view-day');
-      const weekBtn = document.getElementById('btn-view-week');
-      if (range === 'day') {
-        dayBtn.className = 'bg-cyan-500 px-2.5 py-1 rounded text-slate-950 font-bold cursor-pointer';
-        weekBtn.className = 'px-2.5 py-1 text-slate-400 hover:text-white cursor-pointer';
-      } else {
-        weekBtn.className = 'bg-cyan-500 px-2.5 py-1 rounded text-slate-950 font-bold cursor-pointer';
-        dayBtn.className = 'px-2.5 py-1 text-slate-400 hover:text-white cursor-pointer';
-      }
-      renderQualityChart(range);
-    }
+      document.getElementById('sim-stream-btn').addEventListener('click', () => {
+        const btn = document.getElementById('sim-stream-btn');
+        if (state.simInterval) {
+          clearInterval(state.simInterval);
+          state.simInterval = null;
+          btn.textContent = 'Start Demo';
+          return;
+        }
+        btn.textContent = 'Stop Demo';
+        state.simInterval = setInterval(() => {
+          logSip(120);
+          state.tdsPpm = 40 + Math.floor(Math.random() * 5);
+          refreshAllUI();
+        }, 4000);
+      });
 
-    function setTempUnit(unit) {
-      state.unit = unit;
-      const cBtn = document.getElementById('unit-c-btn');
-      const fBtn = document.getElementById('unit-f-btn');
-      if (unit === 'C') {
-        cBtn.className = 'bg-cyan-500 text-slate-950 px-3 py-1 rounded font-bold cursor-pointer';
-        fBtn.className = 'text-slate-400 hover:text-white px-3 py-1 rounded font-bold cursor-pointer';
-        document.getElementById('scale-min').innerText = '4°C (Ice Cold)';
-        document.getElementById('scale-mid').innerText = '18°C (Recommended)';
-        document.getElementById('scale-max').innerText = '30°C (Warm)';
-      } else {
-        fBtn.className = 'bg-cyan-500 text-slate-950 px-3 py-1 rounded font-bold cursor-pointer';
-        cBtn.className = 'text-slate-400 hover:text-white px-3 py-1 rounded font-bold cursor-pointer';
-        document.getElementById('scale-min').innerText = '39°F (Ice Cold)';
-        document.getElementById('scale-mid').innerText = '64°F (Recommended)';
-        document.getElementById('scale-max').innerText = '86°F (Warm)';
-      }
-      updateSliderBadge();
-      refreshAllUI();
-    }
+      document.getElementById('ble-connect-btn').addEventListener('click', async () => {
+        const statusText = document.getElementById('ble-status-text');
+        const dot = document.getElementById('ble-dot');
 
-    function updateSliderBadge() {
-      const rawC = parseInt(document.getElementById('temp-alert-slider').value, 10);
-      const shown = state.unit === 'C' ? `${rawC}°C` : `${Math.round((rawC * 9) / 5 + 32)}°F`;
-      document.getElementById('temp-slider-badge').innerText = shown;
-    }
+        if (state.bleDevice && state.bleDevice.gatt && state.bleDevice.gatt.connected) {
+          state.bleDevice.gatt.disconnect();
+          statusText.textContent = 'Connect Bottle';
+          dot.className = 'status-dot';
+          return;
+        }
 
-    async function connectWebBluetooth() {
-      const statusText = document.getElementById('ble-status-text');
-      const dot = document.getElementById('ble-dot');
-
-      if (state.bleDevice && state.bleDevice.gatt.connected) {
-        state.bleDevice.gatt.disconnect();
-        statusText.innerText = 'Connect Bottle';
-        dot.className = 'inline-block w-2.5 h-2.5 rounded-full bg-amber-400';
-        return;
-      }
-
-      if (!navigator.bluetooth) {
-        alert('Web Bluetooth requires Chrome or Edge on Desktop/Android, or the Bluefy browser app on iOS.');
-        return;
-      }
-
-      try {
-        statusText.innerText = 'Scanning...';
-        const device = await navigator.bluetooth.requestDevice({
-          acceptAllDevices: true,
-          optionalServices: ['battery_service', '0000181a-0000-1000-8000-00805f9b34fb', '6e400001-b5a3-f393-e0a9-e50e24dcca9e']
-        });
-
-        state.bleDevice = device;
-        device.addEventListener('gattserverdisconnected', () => {
-          statusText.innerText = 'Disconnected';
-          dot.className = 'inline-block w-2.5 h-2.5 rounded-full bg-rose-500';
-        });
-
-        const server = await device.gatt.connect();
-        statusText.innerText = device.name ? device.name.slice(0, 14) : 'Bottle Linked';
-        dot.className = 'inline-block w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse';
+        if (!navigator.bluetooth) {
+          statusText.textContent = 'Demo Mode (No BLE)';
+          dot.className = 'status-dot connected';
+          return;
+        }
 
         try {
-          const battService = await server.getPrimaryService('battery_service');
-          const battChar = await battService.getCharacteristic('battery_level');
-          const val = await battChar.readValue();
-          document.getElementById('battery-badge').innerText = `⚡ ${val.getUint8(0)}%`;
-        } catch (_) {}
-      } catch (_) {
-        statusText.innerText = 'Connect Bottle';
-        dot.className = 'inline-block w-2.5 h-2.5 rounded-full bg-amber-400';
-      }
-    }
-
-    function triggerBottleChime() {
-      const btn = document.getElementById('chime-btn');
-      btn.innerText = '🔔 Chiming & Flashing LED on Bottle...';
-      try {
-        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        const osc = audioCtx.createOscillator();
-        const gain = audioCtx.createGain();
-        osc.type = 'sine';
-        osc.frequency.setValueAtTime(880, audioCtx.currentTime);
-        osc.frequency.exponentialRampToValueAtTime(1320, audioCtx.currentTime + 0.25);
-        gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.5);
-        osc.connect(gain);
-        gain.connect(audioCtx.destination);
-        osc.start();
-        osc.stop(audioCtx.currentTime + 0.5);
-      } catch (_) {}
-
-      setTimeout(() => {
-        btn.innerText = '🔊 Play Bottle Chime Sound';
-      }, 2000);
-    }
-
-    function toggleSensorSimulation() {
-      const btn = document.getElementById('sim-stream-btn');
-      if (state.simInterval) {
-        clearInterval(state.simInterval);
-        state.simInterval = null;
-        btn.innerText = 'Start Demo Stream';
-        btn.classList.remove('bg-emerald-600', 'text-slate-950');
-        return;
-      }
-      btn.innerText = 'Stop Demo Stream';
-      btn.classList.add('bg-emerald-600', 'text-slate-950');
-      state.simInterval = setInterval(() => {
-        logSip(120);
-        state.tdsPpm = 40 + Math.floor(Math.random() * 5);
-        refreshAllUI();
-      }, 4000);
-    }
-
-    function renderQualityChart(range = 'day') {
-      const ctx = document.getElementById('qualityChart').getContext('2d');
-      if (state.qualityChart) state.qualityChart.destroy();
-
-      const labels =
-        range === 'day'
-          ? ['8 AM', '10 AM', '12 PM', '2 PM', '4 PM', '6 PM']
-          : ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-      const tempData = range === 'day' ? [16.0, 17.0, 19.0, 18.0, 17.0, 18.0] : [17.2, 17.8, 18.1, 17.5, 17.0, 17.6, 17.9];
-      const tdsData = range === 'day' ? [45, 43, 42, 40, 41, 42] : [44, 42, 41, 43, 40, 42, 41];
-
-      state.qualityChart = new Chart(ctx, {
-        type: 'line',
-        data: {
-          labels,
-          datasets: [
-            {
-              label: 'Temp (°C)',
-              data: tempData,
-              borderColor: '#22D3EE',
-              backgroundColor: '#22D3EE',
-              tension: 0.4,
-              yAxisID: 'y'
-            },
-            {
-              label: 'Purity (PPM)',
-              data: tdsData,
-              borderColor: '#34D399',
-              backgroundColor: '#34D399',
-              borderDash: [4, 4],
-              tension: 0.4,
-              yAxisID: 'y1'
-            }
-          ]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: {
-            legend: { labels: { color: '#94A3B8', font: { size: 10 } } }
-          },
-          scales: {
-            x: { grid: { display: false }, ticks: { color: '#94A3B8', font: { size: 10 } } },
-            y: { position: 'left', grid: { color: '#1E293B' }, ticks: { color: '#22D3EE', font: { size: 10 } } },
-            y1: { position: 'right', grid: { display: false }, ticks: { color: '#34D399', font: { size: 10 } } }
-          }
+          statusText.textContent = 'Scanning...';
+          const device = await navigator.bluetooth.requestDevice({
+            acceptAllDevices: true,
+            optionalServices: ['battery_service', '0000181a-0000-1000-8000-00805f9b34fb']
+          });
+          state.bleDevice = device;
+          device.addEventListener('gattserverdisconnected', () => {
+            statusText.textContent = 'Disconnected';
+            dot.className = 'status-dot error';
+          });
+          await device.gatt.connect();
+          statusText.textContent = device.name ? device.name.slice(0, 14) : 'Bottle Linked';
+          dot.className = 'status-dot connected';
+        } catch (_) {
+          statusText.textContent = 'Connect Bottle';
+          dot.className = 'status-dot';
         }
       });
-    }
 
-    document.getElementById('ble-connect-btn').addEventListener('click', connectWebBluetooth);
-    document.getElementById('user-weight').addEventListener('input', generateSmartSchedule);
-    document.getElementById('user-age').addEventListener('input', generateSmartSchedule);
-    document.getElementById('user-activity').addEventListener('change', generateSmartSchedule);
-    document.getElementById('temp-alert-slider').addEventListener('input', updateSliderBadge);
-
-    generateSmartSchedule();
+      generateSmartSchedule();
+    });
   </script>
 </body>
 </html>
