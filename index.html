@@ -216,4 +216,581 @@
         <div class="flex items-center justify-around gap-4 py-2">
           <!-- Concentric 3-Ring SVG -->
           <div class="relative w-44 h-44 flex-shrink-0">
-            <svg class="w-full h-full -rotate-90" view
+            <svg class="w-full h-full -rotate-90" viewBox="0 0 200 200">
+              <!-- Ring 1 (Outer - Cyan): Daily Volume Goal -->
+              <circle cx="100" cy="100" r="86" stroke="#1E293B" stroke-width="13" fill="none" />
+              <circle id="ring-stat-volume" class="ring-transition" cx="100" cy="100" r="86" stroke="#22D3EE" stroke-width="13" stroke-linecap="round" fill="none" stroke-dasharray="540.35" stroke-dashoffset="270" />
+
+              <!-- Ring 2 (Middle - Emerald): Hourly Pace Consistency -->
+              <circle cx="100" cy="100" r="68" stroke="#1E293B" stroke-width="13" fill="none" />
+              <circle id="ring-stat-pace" class="ring-transition" cx="100" cy="100" r="68" stroke="#34D399" stroke-width="13" stroke-linecap="round" fill="none" stroke-dasharray="427.26" stroke-dashoffset="106" />
+
+              <!-- Ring 3 (Inner - Amber): Water Purity & Temp Score -->
+              <circle cx="100" cy="100" r="50" stroke="#1E293B" stroke-width="13" fill="none" />
+              <circle id="ring-stat-quality" class="ring-transition" cx="100" cy="100" r="50" stroke="#FBBF24" stroke-width="13" stroke-linecap="round" fill="none" stroke-dasharray="314.16" stroke-dashoffset="25" />
+            </svg>
+            <div class="absolute inset-0 flex flex-col items-center justify-center">
+              <span id="ring-center-pct" class="text-2xl font-extrabold text-white">50%</span>
+              <span class="text-[10px] text-slate-400 uppercase tracking-wider">Hydrated</span>
+            </div>
+          </div>
+
+          <!-- Ring Breakdown Legend -->
+          <div class="space-y-3 text-xs flex-1">
+            <div>
+              <div class="flex items-center gap-1.5 font-bold text-cyan-400">
+                <span class="w-2.5 h-2.5 rounded-full bg-cyan-400"></span> Intake Goal
+              </div>
+              <p class="text-slate-300 font-semibold mt-0.5"><span id="ring-vol-val">1,250 / 2,500</span> ml</p>
+            </div>
+            <div>
+              <div class="flex items-center gap-1.5 font-bold text-emerald-400">
+                <span class="w-2.5 h-2.5 rounded-full bg-emerald-400"></span> Sip Consistency
+              </div>
+              <p id="ring-pace-val" class="text-slate-300 font-semibold mt-0.5">75% On Schedule</p>
+            </div>
+            <div>
+              <div class="flex items-center gap-1.5 font-bold text-amber-400">
+                <span class="w-2.5 h-2.5 rounded-full bg-amber-400"></span> Water Quality
+              </div>
+              <p id="ring-qual-val" class="text-slate-300 font-semibold mt-0.5">92% Optimal (42 PPM)</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- DATA OUTPUT #2: Water Quality & Temperature Log -->
+      <div class="card p-4 space-y-3">
+        <div class="flex justify-between items-center">
+          <div>
+            <span class="text-[10px] font-bold uppercase text-emerald-400 tracking-wider">Data Output #2</span>
+            <h3 class="text-sm font-bold text-white">Water Quality & Temperature Log</h3>
+          </div>
+          <span class="text-xs bg-emerald-950 border border-emerald-800 text-emerald-400 px-2.5 py-1 rounded-lg font-medium">Purity: Optimal</span>
+        </div>
+        <div class="grid grid-cols-2 gap-2 text-center text-xs py-2 bg-slate-950/70 rounded-xl border border-slate-800/80">
+          <div><span class="text-slate-400">Avg Temp Today</span><strong id="avg-temp-stat" class="text-cyan-400 block text-sm mt-0.5">17.5°C</strong></div>
+          <div><span class="text-slate-400">Current TDS Purity</span><strong class="text-emerald-400 block text-sm mt-0.5">42 PPM (Pure)</strong></div>
+        </div>
+        <div class="h-48">
+          <canvas id="qualityChart"></canvas>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== TAB 3: CONTROLS & SETTINGS ==================== -->
+    <section id="tab-controls" class="space-y-4 hidden">
+      <h2 class="text-xl font-bold text-white">Smart Bottle Controls</h2>
+
+      <!-- Target Water Temp Alert Slider -->
+      <div class="card p-4 space-y-3">
+        <div class="flex justify-between items-center">
+          <div>
+            <h3 class="text-sm font-bold text-white">Target Water Temp Alert</h3>
+            <p class="text-xs text-slate-400">Notify when water warms above target</p>
+          </div>
+          <span class="text-xs font-bold bg-cyan-950 border border-cyan-800 text-cyan-300 px-3 py-1 rounded-lg" id="temp-slider-badge">18°C</span>
+        </div>
+        <input id="temp-alert-slider" type="range" min="4" max="30" value="18" class="w-full accent-cyan-400 bg-slate-800 rounded-lg h-2 cursor-pointer" />
+        <div class="flex justify-between text-[10px] text-slate-400">
+          <span id="scale-min">4°C (Ice Cold)</span>
+          <span id="scale-mid">18°C (Recommended)</span>
+          <span id="scale-max">30°C (Warm)</span>
+        </div>
+      </div>
+
+      <!-- Find My Smart Bottle -->
+      <div class="card p-4 space-y-3">
+        <div class="flex justify-between items-center">
+          <div>
+            <h3 class="text-sm font-bold text-white">Find My Smart Bottle</h3>
+            <p class="text-xs text-slate-400">Trigger acoustic chime & LED ring flash via BLE</p>
+          </div>
+          <span class="text-cyan-400 text-base">📍</span>
+        </div>
+        <button type="button" id="chime-btn" onclick="triggerBottleChime()" class="w-full bg-emerald-500 hover:bg-emerald-400 active:scale-98 text-slate-950 font-bold py-3 rounded-xl transition flex items-center justify-center gap-2 cursor-pointer">
+          🔊 Play Bottle Chime Sound
+        </button>
+      </div>
+
+      <!-- Unit & Sterilization Preferences -->
+      <div class="card p-4 space-y-4 text-xs">
+        <h3 class="font-bold text-white text-sm">Preferences & Hardware</h3>
+
+        <div class="flex justify-between items-center">
+          <span class="text-slate-300 font-medium">Temperature Unit</span>
+          <div class="bg-slate-950 p-1 rounded-lg border border-slate-800 flex gap-1">
+            <button type="button" id="unit-c-btn" onclick="setTempUnit('C')" class="bg-cyan-500 text-slate-950 px-3 py-1 rounded font-bold cursor-pointer">°C</button>
+            <button type="button" id="unit-f-btn" onclick="setTempUnit('F')" class="text-slate-400 hover:text-white px-3 py-1 rounded font-bold cursor-pointer">°F</button>
+          </div>
+        </div>
+
+        <div class="flex justify-between items-center pt-3 border-t border-slate-800">
+          <div>
+            <span class="text-slate-200 font-medium block">Auto UV-C Cap Sterilization</span>
+            <span class="text-[10px] text-slate-400">Purifies water every 2 hours automatically</span>
+          </div>
+          <input type="checkbox" id="uvc-toggle" checked class="w-5 h-5 accent-cyan-400 rounded cursor-pointer" />
+        </div>
+
+        <div class="flex justify-between items-center pt-3 border-t border-slate-800">
+          <div>
+            <span class="text-slate-200 font-medium block">Simulate Live Bottle Sensor Stream</span>
+            <span class="text-[10px] text-slate-400">Test automatic sip detection without hardware</span>
+          </div>
+          <button type="button" id="sim-stream-btn" onclick="toggleSensorSimulation()" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-cyan-300 px-3 py-1.5 rounded-lg font-semibold cursor-pointer">
+            Start Demo Stream
+          </button>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Fixed Bottom Navigation -->
+  <nav class="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-md bg-slate-950/95 border-t border-slate-800 backdrop-blur px-6 py-2.5 flex justify-around items-center z-50">
+    <button type="button" onclick="switchTab('home')" id="nav-home" class="flex flex-col items-center gap-1 text-cyan-400 cursor-pointer">
+      <span class="text-lg">🏠</span>
+      <span class="text-[10px] font-bold">Home</span>
+    </button>
+    <button type="button" onclick="switchTab('analytics')" id="nav-analytics" class="flex flex-col items-center gap-1 text-slate-500 hover:text-slate-300 cursor-pointer">
+      <span class="text-lg">⭕</span>
+      <span class="text-[10px] font-bold">Rings & Logs</span>
+    </button>
+    <button type="button" onclick="switchTab('controls')" id="nav-controls" class="flex flex-col items-center gap-1 text-slate-500 hover:text-slate-300 cursor-pointer">
+      <span class="text-lg">⚙️</span>
+      <span class="text-[10px] font-bold">Controls</span>
+    </button>
+  </nav>
+
+  <script type="module">
+    import { GoogleGenAI } from '@google/genai';
+
+    // ==================== APPLICATION STATE ====================
+    const state = {
+      consumedMl: 1250,
+      targetMl: 2680,
+      bottleCapacityMl: 750,
+      bottleCurrentMl: 450,
+      tempCelsius: 18,
+      targetTempAlertC: 18,
+      unit: 'C',
+      tdsPpm: 42,
+      sipCount: 5,
+      bleDevice: null,
+      bleCharacteristic: null,
+      simInterval: null,
+      qualityChart: null
+    };
+
+    // ==================== PHYSIOLOGICAL HYDRATION CALCULATOR ====================
+    function computeRecommendedIntakeMl() {
+      const weightLbs = Math.max(50, parseFloat(document.getElementById('user-weight').value) || 160);
+      const age = Math.max(10, parseFloat(document.getElementById('user-age').value) || 24);
+      const activity = document.getElementById('user-activity').value;
+
+      // Baseline: ~0.55 oz per lb of body weight
+      let baseOz = weightLbs * 0.55;
+
+      // Age adjustment (younger/active adults have higher turnover; older adults slightly lower baseline)
+      if (age < 30) baseOz *= 1.05;
+      else if (age > 55) baseOz *= 0.95;
+
+      // Activity level sweat/metabolic addition (in oz)
+      const activityBonusOz = {
+        sedentary: 0,
+        light: 12,
+        moderate: 20,
+        active: 32,
+        athlete: 44
+      };
+
+      const totalOz = Math.round(baseOz + (activityBonusOz[activity] || 16));
+      const totalMl = Math.round((totalOz * 29.5735) / 10) * 10; // Round to nearest 10ml
+
+      state.targetMl = totalMl;
+      document.getElementById('oz-badge').innerText = `${totalOz} oz / day`;
+      return { totalMl, totalOz, weightLbs, age, activity };
+    }
+
+    function updateDefaultPlanSummary() {
+      const { totalMl, totalOz, weightLbs, age, activity } = computeRecommendedIntakeMl();
+      const hourlyMl = Math.round(totalMl / 12); // Across a 12-hour waking window
+      const modeTag = document.getElementById('ai-mode-tag');
+
+      if (modeTag.innerText !== 'Gemini AI Active') {
+        document.getElementById('ai-plan-text').innerHTML =
+          `For <strong>${weightLbs} lbs</strong>, age <strong>${age}</strong> (<strong>${activity}</strong>), a well-hydrated target is <strong>${totalMl.toLocaleString()} ml (${totalOz} oz)</strong> daily. Aim for ~<strong>${hourlyMl} ml</strong> every hour across a 12-hour day.`;
+      }
+      refreshAllUI();
+    }
+
+    // ==================== UI & RING RENDERING ====================
+    function refreshAllUI() {
+      const pct = Math.min(100, Math.round((state.consumedMl / state.targetMl) * 100));
+      const bottlePct = Math.min(100, Math.round((state.bottleCurrentMl / state.bottleCapacityMl) * 100));
+      const remainingMl = Math.max(0, state.targetMl - state.consumedMl);
+
+      // Home Numbers
+      document.getElementById('pct-text').innerText = `${pct}%`;
+      document.getElementById('consumed-text').innerText = state.consumedMl.toLocaleString();
+      document.getElementById('target-text').innerText = state.targetMl.toLocaleString();
+      document.getElementById('bottle-pct-label').innerText = `${bottlePct}%`;
+      document.getElementById('remaining-text').innerText =
+        remainingMl > 0 ? `${remainingMl.toLocaleString()} ml remaining` : '🎉 Daily Goal Reached!';
+
+      // Home Concentric SVG Rings
+      const homeIntakeCirc = 527.79; // 2 * pi * 84
+      document.getElementById('home-ring-intake').style.strokeDashoffset =
+        homeIntakeCirc - (pct / 100) * homeIntakeCirc;
+
+      const homeBottleCirc = 402.12; // 2 * pi * 64
+      document.getElementById('home-ring-bottle').style.strokeDashoffset =
+        homeBottleCirc - (bottlePct / 100) * homeBottleCirc;
+
+      // Analytics 3-Ring Dashboard
+      const pacePct = Math.min(100, Math.round((state.sipCount / 8) * 100));
+      const qualityPct = Math.max(60, Math.min(100, 100 - Math.max(0, state.tdsPpm - 35)));
+
+      document.getElementById('analytics-pace-badge').innerText = `${pct}% Complete`;
+      document.getElementById('ring-center-pct').innerText = `${pct}%`;
+      document.getElementById('ring-vol-val').innerText = `${state.consumedMl.toLocaleString()} / ${state.targetMl.toLocaleString()} ml`;
+      document.getElementById('ring-pace-val').innerText = `${pacePct}% On Schedule (${state.sipCount} sips)`;
+      document.getElementById('ring-qual-val').innerText = `${qualityPct}% Optimal (${state.tdsPpm} PPM)`;
+
+      const r1 = 540.35; // 2 * pi * 86
+      const r2 = 427.26; // 2 * pi * 68
+      const r3 = 314.16; // 2 * pi * 50
+      document.getElementById('ring-stat-volume').style.strokeDashoffset = r1 - (pct / 100) * r1;
+      document.getElementById('ring-stat-pace').style.strokeDashoffset = r2 - (pacePct / 100) * r2;
+      document.getElementById('ring-stat-quality').style.strokeDashoffset = r3 - (qualityPct / 100) * r3;
+
+      // Temperature Display
+      const displayTemp = state.unit === 'C' ? state.tempCelsius : Math.round((state.tempCelsius * 9) / 5 + 32);
+      document.getElementById('home-temp-display').innerText = displayTemp;
+      document.getElementById('home-unit-display').innerText = `°${state.unit}`;
+      document.getElementById('home-tds-display').innerText = state.tdsPpm;
+    }
+
+    // ==================== INTERACTIVE ACTIONS ====================
+    window.logSip = function (ml) {
+      state.consumedMl += ml;
+      state.sipCount += 1;
+      state.bottleCurrentMl = Math.max(0, state.bottleCurrentMl - ml);
+      if (state.bottleCurrentMl === 0) {
+        // Auto-refill simulation if emptied
+        state.bottleCurrentMl = state.bottleCapacityMl;
+      }
+      document.getElementById('last-sip-time').innerText = new Date().toLocaleTimeString([], {
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+      refreshAllUI();
+    };
+
+    window.refillBottle = function () {
+      state.bottleCurrentMl = state.bottleCapacityMl;
+      refreshAllUI();
+    };
+
+    window.resetIntake = function () {
+      state.consumedMl = 0;
+      state.sipCount = 0;
+      state.bottleCurrentMl = state.bottleCapacityMl;
+      document.getElementById('last-sip-time').innerText = 'Reset';
+      refreshAllUI();
+    };
+
+    window.switchTab = function (tabName) {
+      ['home', 'analytics', 'controls'].forEach((t) => {
+        document.getElementById(`tab-${t}`).classList.add('hidden');
+        document.getElementById(`nav-${t}`).className =
+          'flex flex-col items-center gap-1 text-slate-500 hover:text-slate-300 cursor-pointer';
+      });
+      document.getElementById(`tab-${tabName}`).classList.remove('hidden');
+      document.getElementById(`nav-${tabName}`).className =
+        'flex flex-col items-center gap-1 text-cyan-400 cursor-pointer';
+
+      if (tabName === 'analytics') {
+        renderQualityChart();
+      }
+    };
+
+    window.setAnalyticsRange = function (range) {
+      const dayBtn = document.getElementById('btn-view-day');
+      const weekBtn = document.getElementById('btn-view-week');
+      if (range === 'day') {
+        dayBtn.className = 'bg-cyan-500 px-2.5 py-1 rounded text-slate-950 font-bold cursor-pointer';
+        weekBtn.className = 'px-2.5 py-1 text-slate-400 hover:text-white cursor-pointer';
+      } else {
+        weekBtn.className = 'bg-cyan-500 px-2.5 py-1 rounded text-slate-950 font-bold cursor-pointer';
+        dayBtn.className = 'px-2.5 py-1 text-slate-400 hover:text-white cursor-pointer';
+      }
+      renderQualityChart(range);
+    };
+
+    window.setTempUnit = function (unit) {
+      state.unit = unit;
+      const cBtn = document.getElementById('unit-c-btn');
+      const fBtn = document.getElementById('unit-f-btn');
+      if (unit === 'C') {
+        cBtn.className = 'bg-cyan-500 text-slate-950 px-3 py-1 rounded font-bold cursor-pointer';
+        fBtn.className = 'text-slate-400 hover:text-white px-3 py-1 rounded font-bold cursor-pointer';
+        document.getElementById('scale-min').innerText = '4°C (Ice Cold)';
+        document.getElementById('scale-mid').innerText = '18°C (Recommended)';
+        document.getElementById('scale-max').innerText = '30°C (Warm)';
+      } else {
+        fBtn.className = 'bg-cyan-500 text-slate-950 px-3 py-1 rounded font-bold cursor-pointer';
+        cBtn.className = 'text-slate-400 hover:text-white px-3 py-1 rounded font-bold cursor-pointer';
+        document.getElementById('scale-min').innerText = '39°F (Ice Cold)';
+        document.getElementById('scale-mid').innerText = '64°F (Recommended)';
+        document.getElementById('scale-max').innerText = '86°F (Warm)';
+      }
+      updateSliderBadge();
+      refreshAllUI();
+    };
+
+    function updateSliderBadge() {
+      const rawC = parseInt(document.getElementById('temp-alert-slider').value, 10);
+      state.targetTempAlertC = rawC;
+      const shown = state.unit === 'C' ? `${rawC}°C` : `${Math.round((rawC * 9) / 5 + 32)}°F`;
+      document.getElementById('temp-slider-badge').innerText = shown;
+    }
+
+    // ==================== GEMINI AI HYDRATION PLANNER ====================
+    window.generateAIPlan = async function () {
+      const { totalMl, totalOz, weightLbs, age, activity } = computeRecommendedIntakeMl();
+      refreshAllUI();
+
+      const apiKey = document.getElementById('gemini-key').value.trim();
+      const planTextEl = document.getElementById('ai-plan-text');
+      const modeTag = document.getElementById('ai-mode-tag');
+      const btn = document.getElementById('generate-ai-btn');
+
+      if (!apiKey) {
+        modeTag.innerText = 'Smart Formula Active';
+        updateDefaultPlanSummary();
+        return;
+      }
+
+      btn.disabled = true;
+      btn.innerText = '⏳ Generating Personalized AI Plan...';
+      planTextEl.innerText = 'Analyzing age, weight, activity level, and current intake with Gemini...';
+
+      try {
+        const ai = new GoogleGenAI({ apiKey });
+        const prompt = `
+          You are an expert sports and clinical hydration AI inside a smart water bottle app.
+          User Metrics:
+          - Weight: ${weightLbs} lbs
+          - Age: ${age} years
+          - Activity Level: ${activity}
+          - Already Consumed Today: ${state.consumedMl} ml
+          - Calculated Healthy Baseline: ${totalMl} ml (${totalOz} oz)
+
+          1. Output the optimal daily water target in milliliters on the first line formatted strictly as: TARGET_ML: <number>
+          2. Then write a clear, practical 2-3 sentence hydration schedule telling the user exactly how much water to drink and at what intervals today to stay optimally hydrated.
+        `;
+
+        const response = await ai.models.generateContent({
+          model: 'gemini-2.5-flash',
+          contents: prompt
+        });
+
+        const text = response.text || '';
+        const match = text.match(/TARGET_ML:\s*(\d+)/i);
+        if (match && match[1]) {
+          state.targetMl = parseInt(match[1], 10);
+          document.getElementById('oz-badge').innerText = `${Math.round(state.targetMl / 29.5735)} oz / day`;
+        }
+
+        modeTag.innerText = 'Gemini AI Active';
+        modeTag.className = 'text-[10px] text-emerald-400 font-bold';
+        planTextEl.innerText = text.replace(/TARGET_ML:\s*\d+/i, '').trim();
+        refreshAllUI();
+      } catch (err) {
+        console.error('Gemini API Error:', err);
+        modeTag.innerText = 'API Key Error (Using Formula)';
+        planTextEl.innerText = `Could not reach Gemini API (verify your key). Using calculated healthy target: ${totalMl.toLocaleString()} ml (${totalOz} oz) per day.`;
+      } finally {
+        btn.disabled = false;
+        btn.innerText = '✨ Calculate Target & Generate AI Schedule';
+      }
+    };
+
+    // ==================== WEB BLUETOOTH (BLE) INTEGRATION ====================
+    async function connectWebBluetooth() {
+      const statusText = document.getElementById('ble-status-text');
+      const dot = document.getElementById('ble-dot');
+
+      if (state.bleDevice && state.bleDevice.gatt.connected) {
+        state.bleDevice.gatt.disconnect();
+        statusText.innerText = 'Connect Bottle';
+        dot.className = 'inline-block w-2.5 h-2.5 rounded-full bg-amber-400';
+        return;
+      }
+
+      if (!navigator.bluetooth) {
+        alert('Web Bluetooth is not supported in this browser. Open in Chrome/Edge on Desktop/Android, or Bluefy on iOS.');
+        return;
+      }
+
+      try {
+        statusText.innerText = 'Scanning...';
+        // Standard Environmental Sensing / Battery / Custom UART services
+        const device = await navigator.bluetooth.requestDevice({
+          acceptAllDevices: true,
+          optionalServices: ['battery_service', '0000181a-0000-1000-8000-00805f9b34fb', '6e400001-b5a3-f393-e0a9-e50e24dcca9e']
+        });
+
+        state.bleDevice = device;
+        device.addEventListener('gattserverdisconnected', () => {
+          statusText.innerText = 'Disconnected';
+          dot.className = 'inline-block w-2.5 h-2.5 rounded-full bg-rose-500';
+        });
+
+        const server = await device.gatt.connect();
+        statusText.innerText = device.name ? device.name.slice(0, 14) : 'Bottle Linked';
+        dot.className = 'inline-block w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse';
+
+        // Read Battery Level if exposed by device
+        try {
+          const battService = await server.getPrimaryService('battery_service');
+          const battChar = await battService.getCharacteristic('battery_level');
+          const val = await battChar.readValue();
+          document.getElementById('battery-badge').innerText = `⚡ ${val.getUint8(0)}%`;
+        } catch (_) {
+          // Device does not expose standard battery service
+        }
+
+        // Subscribe to hydration telemetry notifications if available
+        try {
+          const envService = await server.getPrimaryService('0000181a-0000-1000-8000-00805f9b34fb');
+          const chars = await envService.getCharacteristics();
+          if (chars.length > 0) {
+            state.bleCharacteristic = chars[0];
+            await state.bleCharacteristic.startNotifications();
+            state.bleCharacteristic.addEventListener('characteristicvaluechanged', (e) => {
+              const sipMl = e.target.value.getUint16(0, true);
+              if (sipMl > 0 && sipMl < 2000) window.logSip(sipMl);
+            });
+          }
+        } catch (_) {
+          console.info('BLE connected; awaiting custom GATT UUID mapping.');
+        }
+      } catch (err) {
+        console.warn('Bluetooth selection cancelled or failed:', err);
+        statusText.innerText = 'Connect Bottle';
+        dot.className = 'inline-block w-2.5 h-2.5 rounded-full bg-amber-400';
+      }
+    }
+
+    window.triggerBottleChime = async function () {
+      const btn = document.getElementById('chime-btn');
+      btn.innerText = '🔔 Chiming & Flashing LED on Bottle...';
+      // Play Web Audio API chime feedback locally + send BLE command if connected
+      try {
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(880, audioCtx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(1320, audioCtx.currentTime + 0.25);
+        gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.5);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.5);
+
+        if (state.bleCharacteristic && state.bleCharacteristic.writeValue) {
+          const cmd = new Uint8Array([0x01]); // Find-me chime opcode
+          await state.bleCharacteristic.writeValue(cmd);
+        }
+      } catch (_) {}
+
+      setTimeout(() => {
+        btn.innerText = '🔊 Play Bottle Chime Sound';
+      }, 2000);
+    };
+
+    window.toggleSensorSimulation = function () {
+      const btn = document.getElementById('sim-stream-btn');
+      if (state.simInterval) {
+        clearInterval(state.simInterval);
+        state.simInterval = null;
+        btn.innerText = 'Start Demo Stream';
+        btn.classList.remove('bg-emerald-600', 'text-slate-950');
+        return;
+      }
+      btn.innerText = 'Stop Demo Stream';
+      btn.classList.add('bg-emerald-600', 'text-slate-950');
+      state.simInterval = setInterval(() => {
+        window.logSip(120);
+        state.tdsPpm = 40 + Math.floor(Math.random() * 5);
+        refreshAllUI();
+      }, 4000);
+    };
+
+    // ==================== CHART.JS QUALITY & TEMP LOG ====================
+    function renderQualityChart(range = 'day') {
+      const ctx = document.getElementById('qualityChart').getContext('2d');
+      if (state.qualityChart) state.qualityChart.destroy();
+
+      const labels =
+        range === 'day'
+          ? ['8 AM', '10 AM', '12 PM', '2 PM', '4 PM', '6 PM']
+          : ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+      const tempData = range === 'day' ? [16.0, 17.0, 19.0, 18.0, 17.0, 18.0] : [17.2, 17.8, 18.1, 17.5, 17.0, 17.6, 17.9];
+      const tdsData = range === 'day' ? [45, 43, 42, 40, 41, 42] : [44, 42, 41, 43, 40, 42, 41];
+
+      state.qualityChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels,
+          datasets: [
+            {
+              label: 'Temp (°C)',
+              data: tempData,
+              borderColor: '#22D3EE',
+              backgroundColor: '#22D3EE',
+              tension: 0.4,
+              yAxisID: 'y'
+            },
+            {
+              label: 'Purity (PPM)',
+              data: tdsData,
+              borderColor: '#34D399',
+              backgroundColor: '#34D399',
+              borderDash: [4, 4],
+              tension: 0.4,
+              yAxisID: 'y1'
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { labels: { color: '#94A3B8', font: { size: 10 } } }
+          },
+          scales: {
+            x: { grid: { display: false }, ticks: { color: '#94A3B8', font: { size: 10 } } },
+            y: { position: 'left', grid: { color: '#1E293B' }, ticks: { color: '#22D3EE', font: { size: 10 } } },
+            y1: { position: 'right', grid: { display: false }, ticks: { color: '#34D399', font: { size: 10 } } }
+          }
+        }
+      });
+    }
+
+    // ==================== EVENT LISTENERS & INIT ====================
+    document.getElementById('ble-connect-btn').addEventListener('click', connectWebBluetooth);
+    document.getElementById('user-weight').addEventListener('input', updateDefaultPlanSummary);
+    document.getElementById('user-age').addEventListener('input', updateDefaultPlanSummary);
+    document.getElementById('user-activity').addEventListener('change', updateDefaultPlanSummary);
+    document.getElementById('temp-alert-slider').addEventListener('input', updateSliderBadge);
+
+    updateDefaultPlanSummary();
+  </script>
+</body>
+</html>
