@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>AURA-SYNC | Smart Hydration & AI Coach</title>
+  <title>AURA-SYNC | Vision AI Smart Bottle & LED Sync</title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
   <style>
     :root {
@@ -38,7 +38,6 @@
       padding-bottom: 84px;
     }
 
-    /* Header */
     header {
       position: sticky;
       top: 0;
@@ -46,22 +45,23 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 14px 16px;
-      background: rgba(7, 11, 20, 0.92);
+      padding: 12px 14px;
+      background: rgba(7, 11, 20, 0.94);
       backdrop-filter: blur(10px);
       border-bottom: 1px solid var(--border);
+      gap: 6px;
     }
 
     .ble-btn {
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 6px;
       background: #0F172A;
       border: 1px solid #334155;
       color: var(--text-main);
-      padding: 6px 12px;
+      padding: 5px 10px;
       border-radius: 999px;
-      font-size: 12px;
+      font-size: 11px;
       font-weight: 600;
       cursor: pointer;
     }
@@ -69,8 +69,8 @@
     .ble-btn:hover { background: #1E293B; }
 
     .status-dot {
-      width: 9px;
-      height: 9px;
+      width: 8px;
+      height: 8px;
       border-radius: 50%;
       background: var(--amber);
       display: inline-block;
@@ -80,23 +80,12 @@
     .status-dot.error { background: var(--rose); }
 
     .brand-title {
-      font-size: 12px;
+      font-size: 11px;
       font-weight: 800;
       letter-spacing: 0.14em;
       color: var(--cyan);
     }
 
-    .battery-pill {
-      background: #0F172A;
-      border: 1px solid var(--border);
-      padding: 5px 10px;
-      border-radius: 999px;
-      font-size: 12px;
-      font-weight: 600;
-      color: var(--emerald);
-    }
-
-    /* Layout & Cards */
     main {
       padding: 16px;
       display: flex;
@@ -116,40 +105,84 @@
       background: var(--bg-card);
       border: 1px solid var(--border);
       border-radius: 20px;
-      padding: 18px;
+      padding: 16px;
     }
 
-    .card-accent {
-      border-left: 4px solid var(--cyan);
-    }
+    .card-accent { border-left: 4px solid var(--cyan); }
+    .card-emerald { border-left: 4px solid var(--emerald); }
 
     .row-between {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 10px;
+      gap: 8px;
     }
 
-    h1 { font-size: 22px; font-weight: 700; }
+    h1 { font-size: 21px; font-weight: 700; }
     h2 { font-size: 18px; font-weight: 700; }
     h3 { font-size: 14px; font-weight: 700; }
-    .subtext { font-size: 12px; color: var(--text-muted); }
+    .subtext { font-size: 11px; color: var(--text-muted); }
 
-    .streak-pill {
+    .pill-badge {
       background: #0F172A;
       border: 1px solid #334155;
       color: var(--amber);
-      font-size: 12px;
-      font-weight: 600;
-      padding: 6px 12px;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 4px 10px;
       border-radius: 999px;
+      white-space: nowrap;
+    }
+
+    /* LED Board Hardware Preview */
+    .led-board {
+      background: #030712;
+      border: 2px solid #1E293B;
+      border-radius: 14px;
+      padding: 12px;
+      font-family: "Courier New", Courier, monospace;
+      box-shadow: inset 0 0 18px rgba(34, 211, 238, 0.12);
+    }
+
+    .led-header {
+      display: flex;
+      justify-content: space-between;
+      font-size: 10px;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+    }
+
+    .led-matrix-text {
+      font-size: 18px;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      color: #38BDF8;
+      text-shadow: 0 0 8px rgba(56, 189, 248, 0.7);
+      text-align: center;
+      padding: 4px 0;
+    }
+
+    .led-bar-track {
+      height: 8px;
+      background: #0F172A;
+      border-radius: 4px;
+      overflow: hidden;
+      margin-top: 6px;
+      border: 1px solid #1E293B;
+    }
+
+    .led-bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #22D3EE, #34D399);
+      box-shadow: 0 0 10px #22D3EE;
+      transition: width 0.4s ease;
     }
 
     /* Concentric Rings */
     .ring-wrapper {
       position: relative;
-      width: 210px;
-      height: 210px;
+      width: 200px;
+      height: 200px;
       margin: 0 auto;
     }
 
@@ -159,9 +192,7 @@
       transform: rotate(-90deg);
     }
 
-    .ring-transition {
-      transition: stroke-dashoffset 0.5s ease;
-    }
+    .ring-transition { transition: stroke-dashoffset 0.5s ease; }
 
     .ring-center {
       position: absolute;
@@ -174,92 +205,105 @@
       pointer-events: none;
     }
 
-    .ring-pct { font-size: 36px; font-weight: 800; line-height: 1; }
-    .ring-vol { font-size: 12px; color: #67E8F9; margin-top: 6px; font-weight: 600; }
+    .ring-pct { font-size: 34px; font-weight: 800; line-height: 1; }
+    .ring-vol { font-size: 12px; color: #67E8F9; margin-top: 5px; font-weight: 600; }
     .ring-rem {
       font-size: 10px;
       color: var(--emerald);
       background: rgba(6, 78, 59, 0.55);
       border: 1px solid rgba(52, 211, 153, 0.35);
-      padding: 2px 9px;
+      padding: 2px 8px;
       border-radius: 999px;
-      margin-top: 6px;
+      margin-top: 5px;
     }
 
     .legend-row {
       display: flex;
       justify-content: center;
-      gap: 16px;
+      gap: 14px;
       font-size: 11px;
       color: var(--text-muted);
+      margin-top: 8px;
+    }
+
+    .legend-item { display: flex; align-items: center; gap: 5px; }
+    .dot-cyan { width: 8px; height: 8px; border-radius: 50%; background: var(--cyan); }
+    .dot-emerald { width: 8px; height: 8px; border-radius: 50%; background: var(--emerald); }
+    .dot-amber { width: 8px; height: 8px; border-radius: 50%; background: var(--amber); }
+
+    /* Camera Vision AI & Stability Gate */
+    .stability-banner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 12px;
+      border-radius: 10px;
+      font-size: 11px;
+      font-weight: 700;
+      margin-top: 10px;
+      border: 1px solid rgba(52, 211, 153, 0.4);
+      background: rgba(6, 78, 59, 0.35);
+      color: var(--emerald);
+    }
+
+    .stability-banner.tilted {
+      border-color: rgba(244, 63, 94, 0.5);
+      background: rgba(136, 19, 55, 0.35);
+      color: #FDA4AF;
+    }
+
+    .vision-preview-box {
+      margin-top: 10px;
+      background: var(--bg-input);
+      border: 1px dashed #334155;
+      border-radius: 12px;
+      padding: 10px;
+      text-align: center;
+    }
+
+    .vision-preview-box img {
+      max-height: 130px;
+      border-radius: 8px;
+      margin: 6px auto;
+      display: block;
+    }
+
+    .btn-row-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
       margin-top: 10px;
     }
 
-    .legend-item { display: flex; align-items: center; gap: 6px; }
-    .dot-cyan { width: 9px; height: 9px; border-radius: 50%; background: var(--cyan); }
-    .dot-emerald { width: 9px; height: 9px; border-radius: 50%; background: var(--emerald); }
-    .dot-amber { width: 9px; height: 9px; border-radius: 50%; background: var(--amber); }
-
-    /* Buttons */
-    .sip-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 8px;
-      margin-top: 14px;
-    }
-
-    .btn-sip {
+    .btn-action {
       background: #1E293B;
       border: 1px solid #334155;
       color: var(--text-main);
-      padding: 10px 6px;
-      border-radius: 12px;
-      font-size: 12px;
+      padding: 9px 10px;
+      border-radius: 10px;
+      font-size: 11px;
       font-weight: 700;
       cursor: pointer;
     }
 
-    .btn-sip span {
-      display: block;
-      font-size: 10px;
-      font-weight: 400;
-      color: var(--text-muted);
-      margin-top: 2px;
-    }
-
-    .btn-sip.primary {
+    .btn-action.cyan {
       background: var(--cyan);
       border-color: var(--cyan);
       color: #042F2E;
     }
 
-    .btn-sip.primary span { color: #0F172A; font-weight: 600; }
-
-    .action-links {
-      display: flex;
-      justify-content: space-between;
-      font-size: 11px;
-      color: var(--text-muted);
-      margin-top: 12px;
+    .btn-action.amber {
+      background: rgba(251, 191, 36, 0.15);
+      border-color: var(--amber);
+      color: var(--amber);
     }
-
-    .link-btn {
-      background: none;
-      border: none;
-      color: var(--emerald);
-      font-size: 11px;
-      cursor: pointer;
-      text-decoration: underline;
-    }
-
-    .link-btn.reset { color: var(--text-muted); }
 
     /* Form Controls */
     .form-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 10px;
-      margin-top: 12px;
+      margin-top: 10px;
     }
 
     label {
@@ -274,7 +318,7 @@
       background: var(--bg-input);
       border: 1px solid #334155;
       color: var(--text-main);
-      padding: 9px 10px;
+      padding: 8px 10px;
       border-radius: 10px;
       font-size: 13px;
       font-weight: 600;
@@ -282,7 +326,7 @@
 
     .btn-full {
       width: 100%;
-      margin-top: 12px;
+      margin-top: 10px;
       padding: 11px;
       border: none;
       border-radius: 12px;
@@ -299,7 +343,7 @@
     }
 
     .plan-box {
-      margin-top: 12px;
+      margin-top: 10px;
       background: var(--bg-input);
       border: 1px solid var(--border);
       border-radius: 12px;
@@ -313,7 +357,7 @@
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 6px;
-      margin-top: 10px;
+      margin-top: 8px;
       font-size: 11px;
     }
 
@@ -324,30 +368,35 @@
       border-radius: 8px;
     }
 
-    .metrics-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
+    .action-links {
+      display: flex;
+      justify-content: space-between;
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 10px;
     }
 
-    .metric-val {
-      font-size: 24px;
-      font-weight: 800;
-      margin: 4px 0;
+    .link-btn {
+      background: none;
+      border: none;
+      color: var(--emerald);
+      font-size: 11px;
+      cursor: pointer;
+      text-decoration: underline;
     }
 
     /* Analytics Rings Layout */
     .analytics-ring-row {
       display: flex;
       align-items: center;
-      gap: 16px;
-      margin-top: 12px;
+      gap: 14px;
+      margin-top: 10px;
     }
 
     .analytics-svg-box {
       position: relative;
-      width: 165px;
-      height: 165px;
+      width: 160px;
+      height: 160px;
       flex-shrink: 0;
     }
 
@@ -365,8 +414,8 @@
     }
 
     .chart-box {
-      height: 190px;
-      margin-top: 12px;
+      height: 185px;
+      margin-top: 10px;
       position: relative;
     }
 
@@ -382,7 +431,6 @@
       font-size: 11px;
     }
 
-    /* Sliders & Toggles */
     input[type="range"] {
       width: 100%;
       margin: 12px 0 6px;
@@ -405,7 +453,7 @@
       color: var(--text-muted);
       padding: 4px 10px;
       border-radius: 6px;
-      font-size: 12px;
+      font-size: 11px;
       font-weight: 700;
       cursor: pointer;
     }
@@ -426,7 +474,6 @@
 
     .pref-row:first-of-type { border-top: none; padding-top: 4px; }
 
-    /* Bottom Nav */
     nav {
       position: fixed;
       bottom: 0;
@@ -461,13 +508,19 @@
 </head>
 <body>
 
+  <!-- Dual Bluetooth Header: Bottle Camera + External LED Board -->
   <header>
-    <button id="ble-connect-btn" type="button" class="ble-btn">
-      <span id="ble-dot" class="status-dot"></span>
-      <span id="ble-status-text">Connect Bottle</span>
+    <button id="ble-cam-btn" type="button" class="ble-btn">
+      <span id="ble-cam-dot" class="status-dot"></span>
+      <span id="ble-cam-text">📷 Camera BLE</span>
     </button>
+
     <div class="brand-title">AURA-SYNC</div>
-    <div id="battery-badge" class="battery-pill">⚡ 88%</div>
+
+    <button id="ble-led-btn" type="button" class="ble-btn">
+      <span id="ble-led-dot" class="status-dot"></span>
+      <span id="ble-led-text">📟 LED Board</span>
+    </button>
   </header>
 
   <main>
@@ -475,10 +528,22 @@
     <section id="tab-home" class="tab-section">
       <div class="row-between">
         <div>
-          <p class="subtext">Welcome back 👋</p>
+          <p class="subtext">Vision AI + Bluetooth Telemetry</p>
           <h1>Hydration Today</h1>
         </div>
-        <span class="streak-pill">🔥 5 Day Streak</span>
+        <span class="pill-badge">🔥 5 Day Streak</span>
+      </div>
+
+      <!-- External LED Board Live Output Mirror -->
+      <div class="led-board">
+        <div class="led-header">
+          <span>📟 EXTERNAL LED BOARD OUTPUT (BLE TX)</span>
+          <span id="led-sync-status" style="color: var(--emerald);">● SYNCED</span>
+        </div>
+        <div id="led-display-readout" class="led-matrix-text">1,250 / 2,680 ML (47%)</div>
+        <div class="led-bar-track">
+          <div id="led-bar-fill" class="led-bar-fill" style="width: 47%;"></div>
+        </div>
       </div>
 
       <!-- Concentric Progress Ring Card -->
@@ -486,43 +551,71 @@
         <div class="ring-wrapper">
           <svg viewBox="0 0 200 200">
             <circle cx="100" cy="100" r="84" stroke="#1E293B" stroke-width="14" fill="none" />
-            <circle id="home-ring-intake" class="ring-transition" cx="100" cy="100" r="84" stroke="#22D3EE" stroke-width="14" stroke-linecap="round" fill="none" stroke-dasharray="527.79" stroke-dashoffset="263.89" />
+            <circle id="home-ring-intake" class="ring-transition" cx="100" cy="100" r="84" stroke="#22D3EE" stroke-width="14" stroke-linecap="round" fill="none" stroke-dasharray="527.79" stroke-dashoffset="280" />
             <circle cx="100" cy="100" r="64" stroke="#1E293B" stroke-width="10" fill="none" />
             <circle id="home-ring-bottle" class="ring-transition" cx="100" cy="100" r="64" stroke="#34D399" stroke-width="10" stroke-linecap="round" fill="none" stroke-dasharray="402.12" stroke-dashoffset="160.85" />
           </svg>
           <div class="ring-center">
-            <span id="pct-text" class="ring-pct">50%</span>
+            <span id="pct-text" class="ring-pct">47%</span>
             <span class="ring-vol"><span id="consumed-text">1,250</span> / <span id="target-text">2,680</span> ml</span>
             <span id="remaining-text" class="ring-rem">1,430 ml remaining</span>
           </div>
         </div>
 
         <div class="legend-row">
-          <span class="legend-item"><span class="dot-cyan"></span>Daily Goal</span>
-          <span class="legend-item"><span class="dot-emerald"></span>Bottle Level (<span id="bottle-pct-label">60%</span>)</span>
-        </div>
-
-        <div class="sip-grid">
-          <button type="button" class="btn-sip" data-sip="150">+150 ml<span>Small Sip</span></button>
-          <button type="button" class="btn-sip primary" data-sip="250">+250 ml<span>Standard Sip</span></button>
-          <button type="button" class="btn-sip" data-sip="500">+500 ml<span>Full Gulp</span></button>
+          <span class="legend-item"><span class="dot-cyan"></span>Drank Today</span>
+          <span class="legend-item"><span class="dot-emerald"></span>Camera Bottle Fill (<span id="bottle-pct-label">60%</span>)</span>
         </div>
 
         <div class="action-links">
-          <button type="button" id="refill-btn" class="link-btn">Refill Bottle (100%)</button>
-          <span>Last sip: <strong id="last-sip-time">Just now</strong></span>
-          <button type="button" id="reset-btn" class="link-btn reset">Reset</button>
+          <button type="button" id="refill-btn" class="link-btn">Refill Bottle (750 ml)</button>
+          <span>Last AI scan: <strong id="last-sip-time">Just now</strong></span>
+          <button type="button" id="reset-btn" class="link-btn" style="color: var(--text-muted);">Reset</button>
         </div>
       </div>
 
-      <!-- Smart Biometric Hydration Planner -->
+      <!-- Vision AI Camera & Neutral Stability Gate -->
+      <div class="card card-emerald">
+        <div class="row-between">
+          <div>
+            <h3>📷 Vision AI Water-Level Sensor</h3>
+            <p class="subtext">Measures bottle level only when neutral & still</p>
+          </div>
+          <span id="bottle-cap-badge" class="pill-badge" style="color: var(--cyan);">750 ml Bottle</span>
+        </div>
+
+        <!-- Neutral Position / Anti-Slosh Status Banner -->
+        <div id="stability-banner" class="stability-banner">
+          <span id="stability-text">✅ Bottle Neutral (0° Tilt) — Water Still: Recording Enabled</span>
+          <span id="stability-state-tag">READY</span>
+        </div>
+
+        <!-- Bottle Image Training / Vision Test Upload -->
+        <div class="vision-preview-box">
+          <p class="subtext" id="vision-status-msg">Upload a bottle photo to test Vision AI meniscus level detection, or simulate a camera capture below.</p>
+          <img id="bottle-photo-preview" class="hidden" alt="Bottle level scan preview" />
+          <input type="file" id="bottle-image-input" accept="image/*" class="hidden" />
+
+          <div class="btn-row-2">
+            <button type="button" id="upload-photo-btn" class="btn-action cyan">📸 Upload Bottle Photo</button>
+            <button type="button" id="sim-camera-sip-btn" class="btn-action">🤖 Simulate Camera Scan</button>
+          </div>
+
+          <div class="btn-row-2">
+            <button type="button" id="toggle-slosh-btn" class="btn-action amber">🌊 Test Tilt / Slosh Lock</button>
+            <button type="button" id="push-led-btn" class="btn-action">📟 Push Update to LED</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Biometric Target Calculator (Weight, Age, Activity Level) -->
       <div class="card card-accent">
         <div class="row-between">
           <div>
-            <h3>🧠 Smart Hydration Planner</h3>
-            <p class="subtext">Tailors target & pacing to age, weight & activity</p>
+            <h3>🧠 Biometric Hydration Goal</h3>
+            <p class="subtext">Sets daily intake target sent to AI & LED board</p>
           </div>
-          <span id="oz-badge" class="streak-pill" style="color:#67E8F9;">91 oz / day</span>
+          <span id="oz-badge" class="pill-badge" style="color:#67E8F9;">91 oz / day</span>
         </div>
 
         <div class="form-grid">
@@ -536,57 +629,42 @@
           </div>
         </div>
 
-        <div style="margin-top: 10px;">
-          <label for="user-activity">Daily Activity Level</label>
-          <select id="user-activity">
-            <option value="sedentary">Sedentary (Desk job, minimal exercise)</option>
-            <option value="light">Lightly Active (1–3 days/week light exercise)</option>
-            <option value="moderate" selected>Moderate (3–5 days/week workout)</option>
-            <option value="active">Very Active (6–7 days/week intense training)</option>
-            <option value="athlete">Athlete / Hot Climate (Heavy sweat loss)</option>
-          </select>
+        <div class="form-grid">
+          <div>
+            <label for="user-activity">Activity Level</label>
+            <select id="user-activity">
+              <option value="sedentary">Sedentary</option>
+              <option value="light">Lightly Active</option>
+              <option value="moderate" selected>Moderate</option>
+              <option value="active">Very Active</option>
+              <option value="athlete">Athlete / Hot</option>
+            </select>
+          </div>
+          <div>
+            <label for="bottle-size-select">Set Bottle Capacity</label>
+            <select id="bottle-size-select">
+              <option value="500">500 ml (16.9 oz)</option>
+              <option value="750" selected>750 ml (25.4 oz)</option>
+              <option value="1000">1,000 ml (33.8 oz)</option>
+            </select>
+          </div>
         </div>
 
-        <button type="button" id="update-plan-btn" class="btn-full">✨ Update Target & Build Hydration Schedule</button>
+        <button type="button" id="update-plan-btn" class="btn-full">✨ Update Target & Sync LED Board</button>
 
         <div class="plan-box">
-          <div class="row-between" style="margin-bottom: 6px;">
-            <strong style="color: var(--cyan);">Personalized Daily Plan:</strong>
-            <span style="font-size: 10px; color: var(--emerald); font-weight: 700;">Auto-Synced</span>
-          </div>
           <p id="ai-plan-text"></p>
           <div id="schedule-pills" class="schedule-grid"></div>
         </div>
       </div>
-
-      <!-- Live Sensor Cards -->
-      <div class="metrics-grid">
-        <div class="card">
-          <div class="row-between subtext">
-            <span>Water Temp</span>
-            <span>🌡️</span>
-          </div>
-          <div class="metric-val"><span id="home-temp-display">18</span><span id="home-unit-display">°C</span></div>
-          <p style="font-size: 11px; color: var(--emerald);">Cool & Optimal</p>
-        </div>
-
-        <div class="card">
-          <div class="row-between subtext">
-            <span>Water Purity</span>
-            <span>💧</span>
-          </div>
-          <div class="metric-val"><span id="home-tds-display">42</span> <span class="subtext">PPM</span></div>
-          <p style="font-size: 11px; color: var(--cyan);">TDS Optimal (Pure)</p>
-        </div>
-      </div>
     </section>
 
-    <!-- ==================== TAB 2: ANALYTICS ==================== -->
+    <!-- ==================== TAB 2: ANALYTICS (RINGS + LOGS) ==================== -->
     <section id="tab-analytics" class="tab-section hidden">
       <div class="row-between">
         <div>
-          <h2>Hydration Rings & Insights</h2>
-          <p class="subtext">Live sensor rings & water quality logs</p>
+          <h2>Hydration Rings & Logs</h2>
+          <p class="subtext">Camera AI accuracy, sip pace & sensor metrics</p>
         </div>
         <div class="unit-switch">
           <button type="button" id="btn-view-day" class="unit-btn active">Today</button>
@@ -600,7 +678,7 @@
             <span style="font-size: 10px; font-weight: 700; color: var(--cyan);">DATA OUTPUT #1</span>
             <h3>Daily Hydration Rings</h3>
           </div>
-          <span id="analytics-pace-badge" class="streak-pill" style="color:#67E8F9;">47% Complete</span>
+          <span id="analytics-pace-badge" class="pill-badge" style="color:#67E8F9;">47% Complete</span>
         </div>
 
         <div class="analytics-ring-row">
@@ -625,12 +703,12 @@
               <div id="ring-vol-val" style="font-weight: 600; margin-top: 2px;">1,250 / 2,680 ml</div>
             </div>
             <div>
-              <div class="legend-item" style="color: var(--emerald); font-weight: 700;"><span class="dot-emerald"></span>Sip Consistency</div>
+              <div class="legend-item" style="color: var(--emerald); font-weight: 700;"><span class="dot-emerald"></span>Stable AI Scans</div>
               <div id="ring-pace-val" style="font-weight: 600; margin-top: 2px;">63% On Schedule</div>
             </div>
             <div>
-              <div class="legend-item" style="color: var(--amber); font-weight: 700;"><span class="dot-amber"></span>Water Quality</div>
-              <div id="ring-qual-val" style="font-weight: 600; margin-top: 2px;">93% Optimal (42 PPM)</div>
+              <div class="legend-item" style="color: var(--amber); font-weight: 700;"><span class="dot-amber"></span>Vision Confidence</div>
+              <div id="ring-qual-val" style="font-weight: 600; margin-top: 2px;">96% Neutral Lock</div>
             </div>
           </div>
         </div>
@@ -640,14 +718,14 @@
         <div class="row-between">
           <div>
             <span style="font-size: 10px; font-weight: 700; color: var(--emerald);">DATA OUTPUT #2</span>
-            <h3>Water Quality & Temperature Log</h3>
+            <h3>Bottle Level & Stability Log</h3>
           </div>
-          <span class="streak-pill" style="color: var(--emerald);">Purity: Optimal</span>
+          <span class="pill-badge" style="color: var(--emerald);">IMU Anti-Slosh Active</span>
         </div>
 
         <div class="stat-strip">
-          <div><span class="subtext">Avg Temp Today</span><strong style="display:block; color: var(--cyan); margin-top: 2px;">17.5°C</strong></div>
-          <div><span class="subtext">Current TDS Purity</span><strong style="display:block; color: var(--emerald); margin-top: 2px;">42 PPM (Pure)</strong></div>
+          <div><span class="subtext">Neutral Scans Today</span><strong id="scan-count-stat" style="display:block; color: var(--cyan); margin-top: 2px;">5 Valid Scans</strong></div>
+          <div><span class="subtext">Slosh Rejections</span><strong id="slosh-reject-stat" style="display:block; color: var(--amber); margin-top: 2px;">2 Blocked</strong></div>
         </div>
 
         <div class="chart-box">
@@ -656,60 +734,60 @@
       </div>
     </section>
 
-    <!-- ==================== TAB 3: CONTROLS ==================== -->
+    <!-- ==================== TAB 3: CONTROLS & HARDWARE ==================== -->
     <section id="tab-controls" class="tab-section hidden">
-      <h2>Smart Bottle Controls</h2>
+      <h2>Hardware & Bluetooth Controls</h2>
 
       <div class="card">
         <div class="row-between">
           <div>
-            <h3>Target Water Temp Alert</h3>
-            <p class="subtext">Notify when water warms above target</p>
+            <h3>IMU Neutral Angle Threshold</h3>
+            <p class="subtext">Max tilt allowed before Camera AI pauses logging</p>
           </div>
-          <span id="temp-slider-badge" class="streak-pill" style="color: var(--cyan);">18°C</span>
+          <span id="tilt-slider-badge" class="pill-badge" style="color: var(--cyan);">±5°</span>
         </div>
-        <input id="temp-alert-slider" type="range" min="4" max="30" value="18" />
+        <input id="tilt-threshold-slider" type="range" min="2" max="15" value="5" />
         <div class="row-between subtext" style="font-size: 10px;">
-          <span id="scale-min">4°C (Ice Cold)</span>
-          <span id="scale-mid">18°C (Recommended)</span>
-          <span id="scale-max">30°C (Warm)</span>
+          <span>±2° (Strict Upright)</span>
+          <span>±5° (Recommended)</span>
+          <span>±15° (Relaxed)</span>
         </div>
       </div>
 
       <div class="card">
         <div class="row-between">
           <div>
-            <h3>Find My Smart Bottle</h3>
-            <p class="subtext">Trigger acoustic chime & LED ring flash</p>
+            <h3>LED Board Brightness & Alert</h3>
+            <p class="subtext">Flash external LED display & chime bottle</p>
           </div>
-          <span>📍</span>
+          <span>📟</span>
         </div>
-        <button type="button" id="chime-btn" class="btn-full emerald">🔊 Play Bottle Chime Sound</button>
+        <button type="button" id="chime-btn" class="btn-full emerald">🔊 Flash LED Board & Play Chime</button>
       </div>
 
       <div class="card">
-        <h3 style="margin-bottom: 8px;">Preferences & Hardware</h3>
+        <h3 style="margin-bottom: 8px;">BLE Telemetry & Calibration</h3>
 
         <div class="pref-row">
-          <span>Temperature Unit</span>
-          <div class="unit-switch">
-            <button type="button" id="unit-c-btn" class="unit-btn active">°C</button>
-            <button type="button" id="unit-f-btn" class="unit-btn">°F</button>
+          <div>
+            <strong>Anti-Slosh Settling Delay</strong>
+            <p class="subtext" style="font-size: 10px;">Wait 2.5s after bottle stops moving before capture</p>
           </div>
+          <input type="checkbox" id="antislosh-toggle" checked style="width: 18px; height: 18px; accent-color: var(--cyan);" />
         </div>
 
         <div class="pref-row">
           <div>
-            <strong>Auto UV-C Cap Sterilization</strong>
-            <p class="subtext" style="font-size: 10px;">Purifies water every 2 hours automatically</p>
+            <strong>Auto-Push Intake to LED Board</strong>
+            <p class="subtext" style="font-size: 10px;">Send BLE packet immediately after every AI reading</p>
           </div>
-          <input type="checkbox" id="uvc-toggle" checked style="width: 18px; height: 18px; accent-color: var(--cyan);" />
+          <input type="checkbox" id="autoled-toggle" checked style="width: 18px; height: 18px; accent-color: var(--cyan);" />
         </div>
 
         <div class="pref-row">
           <div>
-            <strong>Simulate Live Bottle Sensor Stream</strong>
-            <p class="subtext" style="font-size: 10px;">Auto-log sips every 4 seconds for testing</p>
+            <strong>Autonomous Camera Poll Demo</strong>
+            <p class="subtext" style="font-size: 10px;">Simulate periodic upright bottle scans</p>
           </div>
           <button type="button" id="sim-stream-btn" class="unit-btn active">Start Demo</button>
         </div>
@@ -728,7 +806,7 @@
     </button>
     <button type="button" id="nav-controls" class="nav-btn">
       <span class="nav-icon">⚙️</span>
-      <span>Controls</span>
+      <span>Hardware</span>
     </button>
   </nav>
 
@@ -738,20 +816,24 @@
         consumedMl: 1250,
         targetMl: 2680,
         bottleCapacityMl: 750,
-        bottleCurrentMl: 450,
-        tempCelsius: 18,
-        unit: 'C',
-        tdsPpm: 42,
-        sipCount: 5,
-        bleDevice: null,
+        bottleCurrentMl: 450, // 60% full initially
+        isNeutralAndStill: true,
+        validScans: 5,
+        sloshBlockedCount: 2,
+        visionConfidence: 96,
+        camDevice: null,
+        ledDevice: null,
+        ledCharacteristic: null,
         simInterval: null,
         qualityChart: null
       };
 
+      // ==================== BIOMETRIC TARGET CALCULATOR ====================
       function computeRecommendedIntakeMl() {
         const weightLbs = Math.max(50, parseFloat(document.getElementById('user-weight').value) || 160);
         const age = Math.max(10, parseFloat(document.getElementById('user-age').value) || 24);
         const activity = document.getElementById('user-activity').value;
+        state.bottleCapacityMl = parseInt(document.getElementById('bottle-size-select').value, 10) || 750;
 
         let baseOz = weightLbs * 0.55;
         if (age < 30) baseOz *= 1.05;
@@ -769,24 +851,16 @@
         const totalMl = Math.round((totalOz * 29.5735) / 10) * 10;
         state.targetMl = totalMl;
         document.getElementById('oz-badge').textContent = `${totalOz} oz / day`;
+        document.getElementById('bottle-cap-badge').textContent = `${state.bottleCapacityMl} ml Bottle`;
         return { totalMl, totalOz, weightLbs, age, activity };
       }
 
-      function generateSmartSchedule() {
+      function updatePlanAndUI() {
         const { totalMl, totalOz, weightLbs, age, activity } = computeRecommendedIntakeMl();
         const remaining = Math.max(0, totalMl - state.consumedMl);
-        const bottlesNeeded = (totalMl / state.bottleCapacityMl).toFixed(1);
-
-        const activityAdvice = {
-          sedentary: 'Steady micro-sips keep cognitive focus sharp without overloading.',
-          light: 'Add an extra 250 ml glass 30 minutes before light movement.',
-          moderate: 'Drink 350 ml before your workout and 400 ml within 30 mins after.',
-          active: 'High metabolic turnover: pair water with electrolytes during intense sessions.',
-          athlete: 'Elevated sweat loss detected: drink on a strict 45-minute timer all day.'
-        };
 
         document.getElementById('ai-plan-text').innerHTML =
-          `Based on <strong>${weightLbs} lbs</strong>, age <strong>${age}</strong>, and <strong>${activity}</strong> output, your hydrated goal is <strong>${totalMl.toLocaleString()} ml (${totalOz} oz)</strong> (~<strong>${bottlesNeeded}</strong> full bottles). ${activityAdvice[activity]} ${remaining > 0 ? `You need <strong>${remaining.toLocaleString()} ml</strong> more today.` : 'You have reached your daily hydration benchmark!'}`;
+          `Profile: <strong>${weightLbs} lbs</strong>, age <strong>${age}</strong> (<strong>${activity}</strong>). Target set to <strong>${totalMl.toLocaleString()} ml (${totalOz} oz)</strong>. Camera AI subtracts each neutral bottle reading from your <strong>${state.bottleCapacityMl} ml</strong> bottle and updates the LED board automatically. ${remaining > 0 ? `<strong>${remaining.toLocaleString()} ml</strong> left today.` : 'Daily target reached!'}`;
 
         const morningMl = Math.round(totalMl * 0.3);
         const middayMl = Math.round(totalMl * 0.35);
@@ -801,17 +875,25 @@
         `;
 
         refreshAllUI();
+        transmitToLedBoard();
       }
 
+      // ==================== UI & EXTERNAL LED BOARD SYNC ====================
       function refreshAllUI() {
         const pct = Math.min(100, Math.round((state.consumedMl / state.targetMl) * 100));
-        const bottlePct = Math.min(100, Math.round((state.bottleCurrentMl / state.bottleCapacityMl) * 100));
+        const bottlePct = Math.min(100, Math.max(0, Math.round((state.bottleCurrentMl / state.bottleCapacityMl) * 100)));
         const remainingMl = Math.max(0, state.targetMl - state.consumedMl);
 
+        // External LED Board Mirror
+        document.getElementById('led-display-readout').textContent =
+          `${state.consumedMl.toLocaleString()} / ${state.targetMl.toLocaleString()} ML (${pct}%)`;
+        document.getElementById('led-bar-fill').style.width = `${pct}%`;
+
+        // Home Ring Readout
         document.getElementById('pct-text').textContent = `${pct}%`;
         document.getElementById('consumed-text').textContent = state.consumedMl.toLocaleString();
         document.getElementById('target-text').textContent = state.targetMl.toLocaleString();
-        document.getElementById('bottle-pct-label').textContent = `${bottlePct}%`;
+        document.getElementById('bottle-pct-label').textContent = `${bottlePct}% (${state.bottleCurrentMl} ml)`;
         document.getElementById('remaining-text').textContent =
           remainingMl > 0 ? `${remainingMl.toLocaleString()} ml remaining` : '🎉 Daily Goal Reached!';
 
@@ -823,40 +905,198 @@
         document.getElementById('home-ring-bottle').style.strokeDashoffset =
           String(homeBottleCirc - (bottlePct / 100) * homeBottleCirc);
 
-        const pacePct = Math.min(100, Math.round((state.sipCount / 8) * 100));
-        const qualityPct = Math.max(60, Math.min(100, 100 - Math.max(0, state.tdsPpm - 35)));
-
+        // Analytics 3-Ring Dashboard
+        const pacePct = Math.min(100, Math.round((state.validScans / 8) * 100));
         document.getElementById('analytics-pace-badge').textContent = `${pct}% Complete`;
         document.getElementById('ring-center-pct').textContent = `${pct}%`;
         document.getElementById('ring-vol-val').textContent = `${state.consumedMl.toLocaleString()} / ${state.targetMl.toLocaleString()} ml`;
-        document.getElementById('ring-pace-val').textContent = `${pacePct}% On Schedule (${state.sipCount} sips)`;
-        document.getElementById('ring-qual-val').textContent = `${qualityPct}% Optimal (${state.tdsPpm} PPM)`;
+        document.getElementById('ring-pace-val').textContent = `${pacePct}% (${state.validScans} stable scans)`;
+        document.getElementById('ring-qual-val').textContent = `${state.visionConfidence}% Neutral Lock`;
 
         const r1 = 540.35;
         const r2 = 427.26;
         const r3 = 314.16;
         document.getElementById('ring-stat-volume').style.strokeDashoffset = String(r1 - (pct / 100) * r1);
         document.getElementById('ring-stat-pace').style.strokeDashoffset = String(r2 - (pacePct / 100) * r2);
-        document.getElementById('ring-stat-quality').style.strokeDashoffset = String(r3 - (qualityPct / 100) * r3);
+        document.getElementById('ring-stat-quality').style.strokeDashoffset = String(r3 - (state.visionConfidence / 100) * r3);
 
-        const displayTemp = state.unit === 'C' ? state.tempCelsius : Math.round((state.tempCelsius * 9) / 5 + 32);
-        document.getElementById('home-temp-display').textContent = String(displayTemp);
-        document.getElementById('home-unit-display').textContent = `°${state.unit}`;
-        document.getElementById('home-tds-display').textContent = String(state.tdsPpm);
+        document.getElementById('scan-count-stat').textContent = `${state.validScans} Valid Scans`;
+        document.getElementById('slosh-reject-stat').textContent = `${state.sloshBlockedCount} Blocked`;
       }
 
-      function logSip(ml) {
-        state.consumedMl += ml;
-        state.sipCount += 1;
-        state.bottleCurrentMl = Math.max(0, state.bottleCurrentMl - ml);
-        if (state.bottleCurrentMl === 0) state.bottleCurrentMl = state.bottleCapacityMl;
-        document.getElementById('last-sip-time').textContent = new Date().toLocaleTimeString([], {
-          hour: '2-digit',
-          minute: '2-digit'
-        });
-        generateSmartSchedule();
+      async function transmitToLedBoard() {
+        const pct = Math.min(100, Math.round((state.consumedMl / state.targetMl) * 100));
+        const statusEl = document.getElementById('led-sync-status');
+        statusEl.textContent = `● TX: ${state.consumedMl}ML (${pct}%)`;
+
+        if (state.ledCharacteristic && state.ledCharacteristic.writeValue) {
+          try {
+            const encoder = new TextEncoder();
+            const payload = encoder.encode(`DRANK:${state.consumedMl},GOAL:${state.targetMl},PCT:${pct}\n`);
+            await state.ledCharacteristic.writeValue(payload);
+          } catch (err) {
+            console.warn('LED BLE write failed:', err);
+          }
+        }
       }
 
+      // ==================== VISION AI & NEUTRAL STABILITY LOGIC ====================
+      function processCameraWaterLevel(newBottleLevelMl, sourceLabel) {
+        if (!state.isNeutralAndStill) {
+          state.sloshBlockedCount += 1;
+          document.getElementById('vision-status-msg').innerHTML =
+            `<strong style="color: var(--rose);">⏸ Scan Ignored:</strong> Bottle is tilted or water is sloshing. Set bottle upright to record.`;
+          refreshAllUI();
+          return;
+        }
+
+        const clampedNewLevel = Math.max(0, Math.min(state.bottleCapacityMl, Math.round(newBottleLevelMl)));
+        const drankDelta = state.bottleCurrentMl - clampedNewLevel;
+
+        if (drankDelta > 10) {
+          // User drank water since last neutral reading
+          state.consumedMl += drankDelta;
+          state.bottleCurrentMl = clampedNewLevel;
+          state.validScans += 1;
+          document.getElementById('last-sip-time').textContent = new Date().toLocaleTimeString([], {
+            hour: '2-digit',
+            minute: '2-digit'
+          });
+          document.getElementById('vision-status-msg').innerHTML =
+            `<strong style="color: var(--emerald);">✅ ${sourceLabel}:</strong> Detected <strong>${clampedNewLevel} ml</strong> remaining in bottle → Logged <strong>+${drankDelta} ml drank</strong> & updated LED board.`;
+        } else if (clampedNewLevel > state.bottleCurrentMl + 30) {
+          // User refilled the bottle
+          state.bottleCurrentMl = clampedNewLevel;
+          document.getElementById('vision-status-msg').innerHTML =
+            `<strong style="color: var(--cyan);">🔄 Refill Detected:</strong> Bottle level updated to <strong>${clampedNewLevel} ml</strong> (no extra intake logged).`;
+        } else {
+          document.getElementById('vision-status-msg').innerHTML =
+            `<strong style="color: var(--text-muted);">ℹ️ No Change:</strong> Bottle level steady at <strong>${clampedNewLevel} ml</strong>.`;
+        }
+
+        updatePlanAndUI();
+      }
+
+      // Analyze uploaded bottle photo via Canvas pixel row brightness/contrast profile
+      function analyzeUploadedBottleImage(imgElement) {
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        const w = 100;
+        const h = 200;
+        canvas.width = w;
+        canvas.height = h;
+        ctx.drawImage(imgElement, 0, 0, w, h);
+
+        const imgData = ctx.getImageData(25, 20, 50, 160).data;
+        const rowLuminance = [];
+        for (let y = 0; y < 160; y++) {
+          let sum = 0;
+          for (let x = 0; x < 50; x++) {
+            const idx = (y * 50 + x) * 4;
+            sum += 0.299 * imgData[idx] + 0.587 * imgData[idx + 1] + 0.114 * imgData[idx + 2];
+          }
+          rowLuminance.push(sum / 50);
+        }
+
+        // Find strongest horizontal gradient (meniscus boundary between air & water)
+        let maxDiff = 0;
+        let meniscusRow = 80;
+        for (let y = 5; y < 155; y++) {
+          const diff = Math.abs(rowLuminance[y + 3] - rowLuminance[y - 3]);
+          if (diff > maxDiff) {
+            maxDiff = diff;
+            meniscusRow = y;
+          }
+        }
+
+        const fillRatio = Math.max(0, Math.min(1, 1 - meniscusRow / 160));
+        const detectedMl = Math.round((fillRatio * state.bottleCapacityMl) / 10) * 10;
+        state.visionConfidence = Math.min(99, Math.max(85, Math.round(85 + maxDiff / 8)));
+        processCameraWaterLevel(detectedMl, 'Image AI Meniscus Scan');
+      }
+
+      // ==================== EVENT LISTENERS ====================
+      document.getElementById('upload-photo-btn').addEventListener('click', () => {
+        document.getElementById('bottle-image-input').click();
+      });
+
+      document.getElementById('bottle-image-input').addEventListener('change', (e) => {
+        const file = e.target.files && e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+          const img = document.getElementById('bottle-photo-preview');
+          img.src = ev.target.result;
+          img.classList.remove('hidden');
+          img.onload = () => analyzeUploadedBottleImage(img);
+        };
+        reader.readAsDataURL(file);
+      });
+
+      document.getElementById('sim-camera-sip-btn').addEventListener('click', () => {
+        const sipAmount = 150;
+        const nextLevel = state.bottleCurrentMl >= sipAmount
+          ? state.bottleCurrentMl - sipAmount
+          : state.bottleCapacityMl - sipAmount;
+        if (state.bottleCurrentMl < sipAmount) {
+          state.bottleCurrentMl = state.bottleCapacityMl;
+        }
+        processCameraWaterLevel(nextLevel, 'Camera AI Telemetry');
+      });
+
+      document.getElementById('toggle-slosh-btn').addEventListener('click', () => {
+        state.isNeutralAndStill = !state.isNeutralAndStill;
+        const banner = document.getElementById('stability-banner');
+        const text = document.getElementById('stability-text');
+        const tag = document.getElementById('stability-state-tag');
+
+        if (state.isNeutralAndStill) {
+          banner.classList.remove('tilted');
+          text.textContent = '✅ Bottle Neutral (0° Tilt) — Water Still: Recording Enabled';
+          tag.textContent = 'READY';
+        } else {
+          banner.classList.add('tilted');
+          text.textContent = '⚠️ Tilted (28°) / Water Sloshing — AI Recording Paused';
+          tag.textContent = 'LOCKED';
+        }
+      });
+
+      document.getElementById('push-led-btn').addEventListener('click', () => {
+        transmitToLedBoard();
+        const statusEl = document.getElementById('led-sync-status');
+        statusEl.textContent = '● PACKET SENT!';
+        setTimeout(() => {
+          statusEl.textContent = '● SYNCED';
+        }, 1500);
+      });
+
+      document.getElementById('refill-btn').addEventListener('click', () => {
+        state.bottleCurrentMl = state.bottleCapacityMl;
+        document.getElementById('vision-status-msg').textContent =
+          `Bottle refilled to ${state.bottleCapacityMl} ml. Ready for next neutral scan.`;
+        refreshAllUI();
+      });
+
+      document.getElementById('reset-btn').addEventListener('click', () => {
+        state.consumedMl = 0;
+        state.validScans = 0;
+        state.sloshBlockedCount = 0;
+        state.bottleCurrentMl = state.bottleCapacityMl;
+        document.getElementById('last-sip-time').textContent = 'Reset';
+        updatePlanAndUI();
+      });
+
+      document.getElementById('update-plan-btn').addEventListener('click', updatePlanAndUI);
+      document.getElementById('user-weight').addEventListener('input', updatePlanAndUI);
+      document.getElementById('user-age').addEventListener('input', updatePlanAndUI);
+      document.getElementById('user-activity').addEventListener('change', updatePlanAndUI);
+      document.getElementById('bottle-size-select').addEventListener('change', () => {
+        computeRecommendedIntakeMl();
+        state.bottleCurrentMl = state.bottleCapacityMl;
+        updatePlanAndUI();
+      });
+
+      // Tabs
       function switchTab(tabName) {
         ['home', 'analytics', 'controls'].forEach((t) => {
           document.getElementById(`tab-${t}`).classList.add('hidden');
@@ -864,87 +1104,8 @@
         });
         document.getElementById(`tab-${tabName}`).classList.remove('hidden');
         document.getElementById(`nav-${tabName}`).classList.add('active');
-
         if (tabName === 'analytics') renderQualityChart('day');
       }
-
-      function renderQualityChart(range = 'day') {
-        const canvas = document.getElementById('qualityChart');
-        if (!canvas || typeof Chart === 'undefined') return;
-        const ctx = canvas.getContext('2d');
-        if (state.qualityChart) state.qualityChart.destroy();
-
-        const labels =
-          range === 'day'
-            ? ['8 AM', '10 AM', '12 PM', '2 PM', '4 PM', '6 PM']
-            : ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-        const tempData = range === 'day' ? [16.0, 17.0, 19.0, 18.0, 17.0, 18.0] : [17.2, 17.8, 18.1, 17.5, 17.0, 17.6, 17.9];
-        const tdsData = range === 'day' ? [45, 43, 42, 40, 41, 42] : [44, 42, 41, 43, 40, 42, 41];
-
-        state.qualityChart = new Chart(ctx, {
-          type: 'line',
-          data: {
-            labels,
-            datasets: [
-              {
-                label: 'Temp (°C)',
-                data: tempData,
-                borderColor: '#22D3EE',
-                backgroundColor: '#22D3EE',
-                tension: 0.4,
-                yAxisID: 'y'
-              },
-              {
-                label: 'Purity (PPM)',
-                data: tdsData,
-                borderColor: '#34D399',
-                backgroundColor: '#34D399',
-                borderDash: [4, 4],
-                tension: 0.4,
-                yAxisID: 'y1'
-              }
-            ]
-          },
-          options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-              legend: { labels: { color: '#94A3B8', font: { size: 10 } } }
-            },
-            scales: {
-              x: { grid: { display: false }, ticks: { color: '#94A3B8', font: { size: 10 } } },
-              y: { position: 'left', grid: { color: '#1E293B' }, ticks: { color: '#22D3EE', font: { size: 10 } } },
-              y1: { position: 'right', grid: { display: false }, ticks: { color: '#34D399', font: { size: 10 } } }
-            }
-          }
-        });
-      }
-
-      // Event Bindings
-      document.querySelectorAll('.btn-sip').forEach((btn) => {
-        btn.addEventListener('click', () => {
-          const ml = parseInt(btn.getAttribute('data-sip') || '250', 10);
-          logSip(ml);
-        });
-      });
-
-      document.getElementById('refill-btn').addEventListener('click', () => {
-        state.bottleCurrentMl = state.bottleCapacityMl;
-        refreshAllUI();
-      });
-
-      document.getElementById('reset-btn').addEventListener('click', () => {
-        state.consumedMl = 0;
-        state.sipCount = 0;
-        state.bottleCurrentMl = state.bottleCapacityMl;
-        document.getElementById('last-sip-time').textContent = 'Reset';
-        generateSmartSchedule();
-      });
-
-      document.getElementById('update-plan-btn').addEventListener('click', generateSmartSchedule);
-      document.getElementById('user-weight').addEventListener('input', generateSmartSchedule);
-      document.getElementById('user-age').addEventListener('input', generateSmartSchedule);
-      document.getElementById('user-activity').addEventListener('change', generateSmartSchedule);
 
       document.getElementById('nav-home').addEventListener('click', () => switchTab('home'));
       document.getElementById('nav-analytics').addEventListener('click', () => switchTab('analytics'));
@@ -962,39 +1123,13 @@
         renderQualityChart('week');
       });
 
-      const slider = document.getElementById('temp-alert-slider');
-      const updateSliderText = () => {
-        const rawC = parseInt(slider.value, 10);
-        document.getElementById('temp-slider-badge').textContent =
-          state.unit === 'C' ? `${rawC}°C` : `${Math.round((rawC * 9) / 5 + 32)}°F`;
-      };
-      slider.addEventListener('input', updateSliderText);
-
-      document.getElementById('unit-c-btn').addEventListener('click', () => {
-        state.unit = 'C';
-        document.getElementById('unit-c-btn').classList.add('active');
-        document.getElementById('unit-f-btn').classList.remove('active');
-        document.getElementById('scale-min').textContent = '4°C (Ice Cold)';
-        document.getElementById('scale-mid').textContent = '18°C (Recommended)';
-        document.getElementById('scale-max').textContent = '30°C (Warm)';
-        updateSliderText();
-        refreshAllUI();
-      });
-
-      document.getElementById('unit-f-btn').addEventListener('click', () => {
-        state.unit = 'F';
-        document.getElementById('unit-f-btn').classList.add('active');
-        document.getElementById('unit-c-btn').classList.remove('active');
-        document.getElementById('scale-min').textContent = '39°F (Ice Cold)';
-        document.getElementById('scale-mid').textContent = '64°F (Recommended)';
-        document.getElementById('scale-max').textContent = '86°F (Warm)';
-        updateSliderText();
-        refreshAllUI();
+      document.getElementById('tilt-threshold-slider').addEventListener('input', (e) => {
+        document.getElementById('tilt-slider-badge').textContent = `±${e.target.value}°`;
       });
 
       document.getElementById('chime-btn').addEventListener('click', () => {
         const btn = document.getElementById('chime-btn');
-        btn.textContent = '🔔 Chiming & Flashing LED on Bottle...';
+        btn.textContent = '🔔 Flashing LED Board & Chiming...';
         try {
           const AudioContextClass = window.AudioContext || window.webkitAudioContext;
           if (AudioContextClass) {
@@ -1013,7 +1148,7 @@
           }
         } catch (_) {}
         setTimeout(() => {
-          btn.textContent = '🔊 Play Bottle Chime Sound';
+          btn.textContent = '🔊 Flash LED Board & Play Chime';
         }, 2000);
       });
 
@@ -1027,50 +1162,141 @@
         }
         btn.textContent = 'Stop Demo';
         state.simInterval = setInterval(() => {
-          logSip(120);
-          state.tdsPpm = 40 + Math.floor(Math.random() * 5);
-          refreshAllUI();
+          const nextLevel = state.bottleCurrentMl >= 100
+            ? state.bottleCurrentMl - 100
+            : state.bottleCapacityMl - 100;
+          if (state.bottleCurrentMl < 100) state.bottleCurrentMl = state.bottleCapacityMl;
+          processCameraWaterLevel(nextLevel, 'Auto Camera Poll');
         }, 4000);
       });
 
-      document.getElementById('ble-connect-btn').addEventListener('click', async () => {
-        const statusText = document.getElementById('ble-status-text');
-        const dot = document.getElementById('ble-dot');
-
-        if (state.bleDevice && state.bleDevice.gatt && state.bleDevice.gatt.connected) {
-          state.bleDevice.gatt.disconnect();
-          statusText.textContent = 'Connect Bottle';
-          dot.className = 'status-dot';
-          return;
-        }
+      // Bluetooth Connection: Bottle Camera & IMU
+      document.getElementById('ble-cam-btn').addEventListener('click', async () => {
+        const textEl = document.getElementById('ble-cam-text');
+        const dotEl = document.getElementById('ble-cam-dot');
 
         if (!navigator.bluetooth) {
-          statusText.textContent = 'Demo Mode (No BLE)';
-          dot.className = 'status-dot connected';
+          textEl.textContent = '📷 Cam Ready';
+          dotEl.className = 'status-dot connected';
           return;
         }
 
         try {
-          statusText.textContent = 'Scanning...';
+          textEl.textContent = 'Scanning...';
           const device = await navigator.bluetooth.requestDevice({
             acceptAllDevices: true,
-            optionalServices: ['battery_service', '0000181a-0000-1000-8000-00805f9b34fb']
+            optionalServices: ['6e400001-b5a3-f393-e0a9-e50e24dcca9e', '0000181a-0000-1000-8000-00805f9b34fb']
           });
-          state.bleDevice = device;
-          device.addEventListener('gattserverdisconnected', () => {
-            statusText.textContent = 'Disconnected';
-            dot.className = 'status-dot error';
-          });
-          await device.gatt.connect();
-          statusText.textContent = device.name ? device.name.slice(0, 14) : 'Bottle Linked';
-          dot.className = 'status-dot connected';
+          state.camDevice = device;
+          const server = await device.gatt.connect();
+          textEl.textContent = device.name ? device.name.slice(0, 10) : 'Cam Linked';
+          dotEl.className = 'status-dot connected';
+
+          // Listen for BLE notifications formatted as "LVL:500,STILL:1"
+          try {
+            const service = await server.getPrimaryService('6e400001-b5a3-f393-e0a9-e50e24dcca9e');
+            const rxChar = await service.getCharacteristic('6e400003-b5a3-f393-e0a9-e50e24dcca9e');
+            await rxChar.startNotifications();
+            rxChar.addEventListener('characteristicvaluechanged', (ev) => {
+              const raw = new TextDecoder().decode(ev.target.value);
+              const lvlMatch = raw.match(/LVL:(\d+)/i);
+              const stillMatch = raw.match(/STILL:([01])/i);
+              if (stillMatch) state.isNeutralAndStill = stillMatch[1] === '1';
+              if (lvlMatch) processCameraWaterLevel(parseInt(lvlMatch[1], 10), 'BLE Camera AI');
+            });
+          } catch (_) {}
         } catch (_) {
-          statusText.textContent = 'Connect Bottle';
-          dot.className = 'status-dot';
+          textEl.textContent = '📷 Camera BLE';
+          dotEl.className = 'status-dot';
         }
       });
 
-      generateSmartSchedule();
+      // Bluetooth Connection: External LED Display Board
+      document.getElementById('ble-led-btn').addEventListener('click', async () => {
+        const textEl = document.getElementById('ble-led-text');
+        const dotEl = document.getElementById('ble-led-dot');
+
+        if (!navigator.bluetooth) {
+          textEl.textContent = '📟 LED Ready';
+          dotEl.className = 'status-dot connected';
+          return;
+        }
+
+        try {
+          textEl.textContent = 'Scanning...';
+          const device = await navigator.bluetooth.requestDevice({
+            acceptAllDevices: true,
+            optionalServices: ['6e400001-b5a3-f393-e0a9-e50e24dcca9e']
+          });
+          state.ledDevice = device;
+          const server = await device.gatt.connect();
+          textEl.textContent = device.name ? device.name.slice(0, 10) : 'LED Linked';
+          dotEl.className = 'status-dot connected';
+
+          try {
+            const service = await server.getPrimaryService('6e400001-b5a3-f393-e0a9-e50e24dcca9e');
+            state.ledCharacteristic = await service.getCharacteristic('6e400002-b5a3-f393-e0a9-e50e24dcca9e');
+            transmitToLedBoard();
+          } catch (_) {}
+        } catch (_) {
+          textEl.textContent = '📟 LED Board';
+          dotEl.className = 'status-dot';
+        }
+      });
+
+      function renderQualityChart(range = 'day') {
+        const canvas = document.getElementById('qualityChart');
+        if (!canvas || typeof Chart === 'undefined') return;
+        const ctx = canvas.getContext('2d');
+        if (state.qualityChart) state.qualityChart.destroy();
+
+        const labels =
+          range === 'day'
+            ? ['8 AM', '10 AM', '12 PM', '2 PM', '4 PM', '6 PM']
+            : ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+        const levelData = range === 'day' ? [750, 600, 450, 750, 500, 450] : [620, 580, 600, 540, 590, 610, 570];
+        const confData = range === 'day' ? [98, 96, 97, 99, 95, 96] : [96, 95, 97, 98, 96, 97, 96];
+
+        state.qualityChart = new Chart(ctx, {
+          type: 'line',
+          data: {
+            labels,
+            datasets: [
+              {
+                label: 'Bottle Level (ml)',
+                data: levelData,
+                borderColor: '#22D3EE',
+                backgroundColor: '#22D3EE',
+                tension: 0.4,
+                yAxisID: 'y'
+              },
+              {
+                label: 'Vision AI Conf (%)',
+                data: confData,
+                borderColor: '#34D399',
+                backgroundColor: '#34D399',
+                borderDash: [4, 4],
+                tension: 0.4,
+                yAxisID: 'y1'
+              }
+            ]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: { labels: { color: '#94A3B8', font: { size: 10 } } }
+            },
+            scales: {
+              x: { grid: { display: false }, ticks: { color: '#94A3B8', font: { size: 10 } } },
+              y: { position: 'left', grid: { color: '#1E293B' }, ticks: { color: '#22D3EE', font: { size: 10 } } },
+              y1: { position: 'right', min: 80, max: 100, grid: { display: false }, ticks: { color: '#34D399', font: { size: 10 } } }
+            }
+          }
+        });
+      }
+
+      updatePlanAndUI();
     });
   </script>
 </body>
