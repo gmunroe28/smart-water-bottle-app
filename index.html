@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>AURA-SYNC | Vision AI Smart Bottle & LED Sync</title>
+  <title>AURA-SYNC | Vision AI Smart Bottle &amp; LED Sync</title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
   <style>
     :root {
@@ -17,6 +17,7 @@
       --emerald: #34D399;
       --amber: #FBBF24;
       --rose: #F43F5E;
+      --purple: #C084FC;
     }
 
     * {
@@ -122,6 +123,15 @@
     h2 { font-size: 18px; font-weight: 700; }
     h3 { font-size: 14px; font-weight: 700; }
     .subtext { font-size: 11px; color: var(--text-muted); }
+    .text-cyan { color: var(--cyan); }
+    .text-emerald { color: var(--emerald); }
+    .text-amber { color: var(--amber); }
+    .text-rose { color: var(--rose); }
+    .text-purple { color: var(--purple); }
+    .text-muted { color: var(--text-muted); }
+    .font-bold { font-weight: 700; }
+    .mt-10 { margin-top: 10px; }
+    .mb-8 { margin-bottom: 8px; }
 
     .pill-badge {
       background: #0F172A;
@@ -134,7 +144,10 @@
       white-space: nowrap;
     }
 
-    /* LED Board Hardware Preview */
+    .pill-badge.cyan { color: #67E8F9; }
+    .pill-badge.emerald { color: var(--emerald); }
+
+    /* External LED Board Preview */
     .led-board {
       background: #030712;
       border: 2px solid #1E293B;
@@ -173,6 +186,7 @@
 
     .led-bar-fill {
       height: 100%;
+      width: 47%;
       background: linear-gradient(90deg, #22D3EE, #34D399);
       box-shadow: 0 0 10px #22D3EE;
       transition: width 0.4s ease;
@@ -298,7 +312,6 @@
       color: var(--amber);
     }
 
-    /* Form Controls */
     .form-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -385,7 +398,8 @@
       text-decoration: underline;
     }
 
-    /* Analytics Rings Layout */
+    .link-btn.muted { color: var(--text-muted); }
+
     .analytics-ring-row {
       display: flex;
       align-items: center;
@@ -406,12 +420,18 @@
       transform: rotate(-90deg);
     }
 
+    .ring-center-small-pct { font-size: 22px; font-weight: 800; }
+    .ring-center-sub { font-size: 9px; color: var(--text-muted); }
+
     .ring-stats-list {
       display: flex;
       flex-direction: column;
       gap: 10px;
       font-size: 12px;
     }
+
+    .stat-val-text { font-weight: 600; margin-top: 2px; }
+    .tag-label { font-size: 10px; font-weight: 700; }
 
     .chart-box {
       height: 185px;
@@ -431,12 +451,16 @@
       font-size: 11px;
     }
 
+    .stat-strip strong { display: block; margin-top: 2px; }
+
     input[type="range"] {
       width: 100%;
       margin: 12px 0 6px;
       accent-color: var(--cyan);
       cursor: pointer;
     }
+
+    .scale-row { font-size: 10px; }
 
     .unit-switch {
       display: flex;
@@ -473,6 +497,8 @@
     }
 
     .pref-row:first-of-type { border-top: none; padding-top: 4px; }
+    .pref-sub { font-size: 10px; }
+    .toggle-check { width: 18px; height: 18px; accent-color: var(--cyan); }
 
     nav {
       position: fixed;
@@ -508,7 +534,6 @@
 </head>
 <body>
 
-  <!-- Dual Bluetooth Header: Bottle Camera + External LED Board -->
   <header>
     <button id="ble-cam-btn" type="button" class="ble-btn">
       <span id="ble-cam-dot" class="status-dot"></span>
@@ -538,11 +563,11 @@
       <div class="led-board">
         <div class="led-header">
           <span>📟 EXTERNAL LED BOARD OUTPUT (BLE TX)</span>
-          <span id="led-sync-status" style="color: var(--emerald);">● SYNCED</span>
+          <span id="led-sync-status" class="text-emerald">● SYNCED</span>
         </div>
         <div id="led-display-readout" class="led-matrix-text">1,250 / 2,680 ML (47%)</div>
         <div class="led-bar-track">
-          <div id="led-bar-fill" class="led-bar-fill" style="width: 47%;"></div>
+          <div id="led-bar-fill" class="led-bar-fill"></div>
         </div>
       </div>
 
@@ -570,7 +595,7 @@
         <div class="action-links">
           <button type="button" id="refill-btn" class="link-btn">Refill Bottle (750 ml)</button>
           <span>Last AI scan: <strong id="last-sip-time">Just now</strong></span>
-          <button type="button" id="reset-btn" class="link-btn" style="color: var(--text-muted);">Reset</button>
+          <button type="button" id="reset-btn" class="link-btn muted">Reset</button>
         </div>
       </div>
 
@@ -579,21 +604,19 @@
         <div class="row-between">
           <div>
             <h3>📷 Vision AI Water-Level Sensor</h3>
-            <p class="subtext">Measures bottle level only when neutral & still</p>
+            <p class="subtext">Measures bottle level only when neutral &amp; still</p>
           </div>
-          <span id="bottle-cap-badge" class="pill-badge" style="color: var(--cyan);">750 ml Bottle</span>
+          <span id="bottle-cap-badge" class="pill-badge cyan">750 ml Bottle</span>
         </div>
 
-        <!-- Neutral Position / Anti-Slosh Status Banner -->
         <div id="stability-banner" class="stability-banner">
           <span id="stability-text">✅ Bottle Neutral (0° Tilt) — Water Still: Recording Enabled</span>
           <span id="stability-state-tag">READY</span>
         </div>
 
-        <!-- Bottle Image Training / Vision Test Upload -->
         <div class="vision-preview-box">
           <p class="subtext" id="vision-status-msg">Upload a bottle photo to test Vision AI meniscus level detection, or simulate a camera capture below.</p>
-          <img id="bottle-photo-preview" class="hidden" alt="Bottle level scan preview" />
+          <img id="bottle-photo-preview" class="hidden" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" alt="Bottle level scan preview" />
           <input type="file" id="bottle-image-input" accept="image/*" class="hidden" />
 
           <div class="btn-row-2">
@@ -608,14 +631,14 @@
         </div>
       </div>
 
-      <!-- Biometric Target Calculator (Weight, Age, Activity Level) -->
+      <!-- Biometric Target Calculator -->
       <div class="card card-accent">
         <div class="row-between">
           <div>
             <h3>🧠 Biometric Hydration Goal</h3>
-            <p class="subtext">Sets daily intake target sent to AI & LED board</p>
+            <p class="subtext">Sets daily intake target sent to AI &amp; LED board</p>
           </div>
-          <span id="oz-badge" class="pill-badge" style="color:#67E8F9;">91 oz / day</span>
+          <span id="oz-badge" class="pill-badge cyan">91 oz / day</span>
         </div>
 
         <div class="form-grid">
@@ -650,7 +673,7 @@
           </div>
         </div>
 
-        <button type="button" id="update-plan-btn" class="btn-full">✨ Update Target & Sync LED Board</button>
+        <button type="button" id="update-plan-btn" class="btn-full">✨ Update Target &amp; Sync LED Board</button>
 
         <div class="plan-box">
           <p id="ai-plan-text"></p>
@@ -663,8 +686,8 @@
     <section id="tab-analytics" class="tab-section hidden">
       <div class="row-between">
         <div>
-          <h2>Hydration Rings & Logs</h2>
-          <p class="subtext">Camera AI accuracy, sip pace & sensor metrics</p>
+          <h2>Hydration Rings &amp; Logs</h2>
+          <p class="subtext">Camera AI accuracy, sip pace &amp; sensor metrics</p>
         </div>
         <div class="unit-switch">
           <button type="button" id="btn-view-day" class="unit-btn active">Today</button>
@@ -675,10 +698,10 @@
       <div class="card">
         <div class="row-between">
           <div>
-            <span style="font-size: 10px; font-weight: 700; color: var(--cyan);">DATA OUTPUT #1</span>
+            <span class="tag-label text-cyan">DATA OUTPUT #1</span>
             <h3>Daily Hydration Rings</h3>
           </div>
-          <span id="analytics-pace-badge" class="pill-badge" style="color:#67E8F9;">47% Complete</span>
+          <span id="analytics-pace-badge" class="pill-badge cyan">47% Complete</span>
         </div>
 
         <div class="analytics-ring-row">
@@ -692,23 +715,23 @@
               <circle id="ring-stat-quality" class="ring-transition" cx="100" cy="100" r="50" stroke="#FBBF24" stroke-width="13" stroke-linecap="round" fill="none" stroke-dasharray="314.16" stroke-dashoffset="25" />
             </svg>
             <div class="ring-center">
-              <span id="ring-center-pct" style="font-size: 22px; font-weight: 800;">47%</span>
-              <span style="font-size: 9px; color: var(--text-muted);">HYDRATED</span>
+              <span id="ring-center-pct" class="ring-center-small-pct">47%</span>
+              <span class="ring-center-sub">HYDRATED</span>
             </div>
           </div>
 
           <div class="ring-stats-list">
             <div>
-              <div class="legend-item" style="color: var(--cyan); font-weight: 700;"><span class="dot-cyan"></span>Intake Goal</div>
-              <div id="ring-vol-val" style="font-weight: 600; margin-top: 2px;">1,250 / 2,680 ml</div>
+              <div class="legend-item text-cyan font-bold"><span class="dot-cyan"></span>Intake Goal</div>
+              <div id="ring-vol-val" class="stat-val-text">1,250 / 2,680 ml</div>
             </div>
             <div>
-              <div class="legend-item" style="color: var(--emerald); font-weight: 700;"><span class="dot-emerald"></span>Stable AI Scans</div>
-              <div id="ring-pace-val" style="font-weight: 600; margin-top: 2px;">63% On Schedule</div>
+              <div class="legend-item text-emerald font-bold"><span class="dot-emerald"></span>Stable AI Scans</div>
+              <div id="ring-pace-val" class="stat-val-text">63% On Schedule</div>
             </div>
             <div>
-              <div class="legend-item" style="color: var(--amber); font-weight: 700;"><span class="dot-amber"></span>Vision Confidence</div>
-              <div id="ring-qual-val" style="font-weight: 600; margin-top: 2px;">96% Neutral Lock</div>
+              <div class="legend-item text-amber font-bold"><span class="dot-amber"></span>Vision Confidence</div>
+              <div id="ring-qual-val" class="stat-val-text">96% Neutral Lock</div>
             </div>
           </div>
         </div>
@@ -717,15 +740,15 @@
       <div class="card">
         <div class="row-between">
           <div>
-            <span style="font-size: 10px; font-weight: 700; color: var(--emerald);">DATA OUTPUT #2</span>
-            <h3>Bottle Level & Stability Log</h3>
+            <span class="tag-label text-emerald">DATA OUTPUT #2</span>
+            <h3>Bottle Level &amp; Stability Log</h3>
           </div>
-          <span class="pill-badge" style="color: var(--emerald);">IMU Anti-Slosh Active</span>
+          <span class="pill-badge emerald">IMU Anti-Slosh Active</span>
         </div>
 
         <div class="stat-strip">
-          <div><span class="subtext">Neutral Scans Today</span><strong id="scan-count-stat" style="display:block; color: var(--cyan); margin-top: 2px;">5 Valid Scans</strong></div>
-          <div><span class="subtext">Slosh Rejections</span><strong id="slosh-reject-stat" style="display:block; color: var(--amber); margin-top: 2px;">2 Blocked</strong></div>
+          <div><span class="subtext">Neutral Scans Today</span><strong id="scan-count-stat" class="text-cyan">5 Valid Scans</strong></div>
+          <div><span class="subtext">Slosh Rejections</span><strong id="slosh-reject-stat" class="text-amber">2 Blocked</strong></div>
         </div>
 
         <div class="chart-box">
@@ -736,7 +759,7 @@
 
     <!-- ==================== TAB 3: CONTROLS & HARDWARE ==================== -->
     <section id="tab-controls" class="tab-section hidden">
-      <h2>Hardware & Bluetooth Controls</h2>
+      <h2>Hardware &amp; Bluetooth Controls</h2>
 
       <div class="card">
         <div class="row-between">
@@ -744,10 +767,10 @@
             <h3>IMU Neutral Angle Threshold</h3>
             <p class="subtext">Max tilt allowed before Camera AI pauses logging</p>
           </div>
-          <span id="tilt-slider-badge" class="pill-badge" style="color: var(--cyan);">±5°</span>
+          <span id="tilt-slider-badge" class="pill-badge cyan">±5°</span>
         </div>
         <input id="tilt-threshold-slider" type="range" min="2" max="15" value="5" />
-        <div class="row-between subtext" style="font-size: 10px;">
+        <div class="row-between subtext scale-row">
           <span>±2° (Strict Upright)</span>
           <span>±5° (Recommended)</span>
           <span>±15° (Relaxed)</span>
@@ -757,37 +780,37 @@
       <div class="card">
         <div class="row-between">
           <div>
-            <h3>LED Board Brightness & Alert</h3>
-            <p class="subtext">Flash external LED display & chime bottle</p>
+            <h3>LED Board Brightness &amp; Alert</h3>
+            <p class="subtext">Flash external LED display &amp; chime bottle</p>
           </div>
           <span>📟</span>
         </div>
-        <button type="button" id="chime-btn" class="btn-full emerald">🔊 Flash LED Board & Play Chime</button>
+        <button type="button" id="chime-btn" class="btn-full emerald">🔊 Flash LED Board &amp; Play Chime</button>
       </div>
 
       <div class="card">
-        <h3 style="margin-bottom: 8px;">BLE Telemetry & Calibration</h3>
+        <h3 class="mb-8">BLE Telemetry &amp; Calibration</h3>
 
         <div class="pref-row">
           <div>
             <strong>Anti-Slosh Settling Delay</strong>
-            <p class="subtext" style="font-size: 10px;">Wait 2.5s after bottle stops moving before capture</p>
+            <p class="subtext pref-sub">Wait 2.5s after bottle stops moving before capture</p>
           </div>
-          <input type="checkbox" id="antislosh-toggle" checked style="width: 18px; height: 18px; accent-color: var(--cyan);" />
+          <input type="checkbox" id="antislosh-toggle" checked class="toggle-check" />
         </div>
 
         <div class="pref-row">
           <div>
             <strong>Auto-Push Intake to LED Board</strong>
-            <p class="subtext" style="font-size: 10px;">Send BLE packet immediately after every AI reading</p>
+            <p class="subtext pref-sub">Send BLE packet immediately after every AI reading</p>
           </div>
-          <input type="checkbox" id="autoled-toggle" checked style="width: 18px; height: 18px; accent-color: var(--cyan);" />
+          <input type="checkbox" id="autoled-toggle" checked class="toggle-check" />
         </div>
 
         <div class="pref-row">
           <div>
             <strong>Autonomous Camera Poll Demo</strong>
-            <p class="subtext" style="font-size: 10px;">Simulate periodic upright bottle scans</p>
+            <p class="subtext pref-sub">Simulate periodic upright bottle scans</p>
           </div>
           <button type="button" id="sim-stream-btn" class="unit-btn active">Start Demo</button>
         </div>
@@ -802,7 +825,7 @@
     </button>
     <button type="button" id="nav-analytics" class="nav-btn">
       <span class="nav-icon">⭕</span>
-      <span>Rings & Logs</span>
+      <span>Rings &amp; Logs</span>
     </button>
     <button type="button" id="nav-controls" class="nav-btn">
       <span class="nav-icon">⚙️</span>
@@ -816,7 +839,7 @@
         consumedMl: 1250,
         targetMl: 2680,
         bottleCapacityMl: 750,
-        bottleCurrentMl: 450, // 60% full initially
+        bottleCurrentMl: 450,
         isNeutralAndStill: true,
         validScans: 5,
         sloshBlockedCount: 2,
@@ -828,7 +851,6 @@
         qualityChart: null
       };
 
-      // ==================== BIOMETRIC TARGET CALCULATOR ====================
       function computeRecommendedIntakeMl() {
         const weightLbs = Math.max(50, parseFloat(document.getElementById('user-weight').value) || 160);
         const age = Math.max(10, parseFloat(document.getElementById('user-age').value) || 24);
@@ -868,28 +890,25 @@
         const eveningMl = Math.max(0, totalMl - morningMl - middayMl - afternoonMl);
 
         document.getElementById('schedule-pills').innerHTML = `
-          <div class="schedule-pill"><strong style="color:var(--cyan);">8–11 AM:</strong> ${morningMl} ml</div>
-          <div class="schedule-pill"><strong style="color:var(--emerald);">11 AM–3 PM:</strong> ${middayMl} ml</div>
-          <div class="schedule-pill"><strong style="color:var(--amber);">3–7 PM:</strong> ${afternoonMl} ml</div>
-          <div class="schedule-pill"><strong style="color:#C084FC;">7–10 PM:</strong> ${eveningMl} ml</div>
+          <div class="schedule-pill"><strong class="text-cyan">8–11 AM:</strong> ${morningMl} ml</div>
+          <div class="schedule-pill"><strong class="text-emerald">11 AM–3 PM:</strong> ${middayMl} ml</div>
+          <div class="schedule-pill"><strong class="text-amber">3–7 PM:</strong> ${afternoonMl} ml</div>
+          <div class="schedule-pill"><strong class="text-purple">7–10 PM:</strong> ${eveningMl} ml</div>
         `;
 
         refreshAllUI();
         transmitToLedBoard();
       }
 
-      // ==================== UI & EXTERNAL LED BOARD SYNC ====================
       function refreshAllUI() {
         const pct = Math.min(100, Math.round((state.consumedMl / state.targetMl) * 100));
         const bottlePct = Math.min(100, Math.max(0, Math.round((state.bottleCurrentMl / state.bottleCapacityMl) * 100)));
         const remainingMl = Math.max(0, state.targetMl - state.consumedMl);
 
-        // External LED Board Mirror
         document.getElementById('led-display-readout').textContent =
           `${state.consumedMl.toLocaleString()} / ${state.targetMl.toLocaleString()} ML (${pct}%)`;
         document.getElementById('led-bar-fill').style.width = `${pct}%`;
 
-        // Home Ring Readout
         document.getElementById('pct-text').textContent = `${pct}%`;
         document.getElementById('consumed-text').textContent = state.consumedMl.toLocaleString();
         document.getElementById('target-text').textContent = state.targetMl.toLocaleString();
@@ -905,7 +924,6 @@
         document.getElementById('home-ring-bottle').style.strokeDashoffset =
           String(homeBottleCirc - (bottlePct / 100) * homeBottleCirc);
 
-        // Analytics 3-Ring Dashboard
         const pacePct = Math.min(100, Math.round((state.validScans / 8) * 100));
         document.getElementById('analytics-pace-badge').textContent = `${pct}% Complete`;
         document.getElementById('ring-center-pct').textContent = `${pct}%`;
@@ -940,12 +958,11 @@
         }
       }
 
-      // ==================== VISION AI & NEUTRAL STABILITY LOGIC ====================
       function processCameraWaterLevel(newBottleLevelMl, sourceLabel) {
         if (!state.isNeutralAndStill) {
           state.sloshBlockedCount += 1;
           document.getElementById('vision-status-msg').innerHTML =
-            `<strong style="color: var(--rose);">⏸ Scan Ignored:</strong> Bottle is tilted or water is sloshing. Set bottle upright to record.`;
+            `<strong class="text-rose">⏸ Scan Ignored:</strong> Bottle is tilted or water is sloshing. Set bottle upright to record.`;
           refreshAllUI();
           return;
         }
@@ -954,7 +971,6 @@
         const drankDelta = state.bottleCurrentMl - clampedNewLevel;
 
         if (drankDelta > 10) {
-          // User drank water since last neutral reading
           state.consumedMl += drankDelta;
           state.bottleCurrentMl = clampedNewLevel;
           state.validScans += 1;
@@ -963,59 +979,61 @@
             minute: '2-digit'
           });
           document.getElementById('vision-status-msg').innerHTML =
-            `<strong style="color: var(--emerald);">✅ ${sourceLabel}:</strong> Detected <strong>${clampedNewLevel} ml</strong> remaining in bottle → Logged <strong>+${drankDelta} ml drank</strong> & updated LED board.`;
+            `<strong class="text-emerald">✅ ${sourceLabel}:</strong> Detected <strong>${clampedNewLevel} ml</strong> remaining in bottle → Logged <strong>+${drankDelta} ml drank</strong> &amp; updated LED board.`;
         } else if (clampedNewLevel > state.bottleCurrentMl + 30) {
-          // User refilled the bottle
           state.bottleCurrentMl = clampedNewLevel;
           document.getElementById('vision-status-msg').innerHTML =
-            `<strong style="color: var(--cyan);">🔄 Refill Detected:</strong> Bottle level updated to <strong>${clampedNewLevel} ml</strong> (no extra intake logged).`;
+            `<strong class="text-cyan">🔄 Refill Detected:</strong> Bottle level updated to <strong>${clampedNewLevel} ml</strong> (no extra intake logged).`;
         } else {
           document.getElementById('vision-status-msg').innerHTML =
-            `<strong style="color: var(--text-muted);">ℹ️ No Change:</strong> Bottle level steady at <strong>${clampedNewLevel} ml</strong>.`;
+            `<strong class="text-muted">ℹ️ No Change:</strong> Bottle level steady at <strong>${clampedNewLevel} ml</strong>.`;
         }
 
         updatePlanAndUI();
       }
 
-      // Analyze uploaded bottle photo via Canvas pixel row brightness/contrast profile
       function analyzeUploadedBottleImage(imgElement) {
-        const canvas = document.createElement('canvas');
-        const ctx = canvas.getContext('2d');
-        const w = 100;
-        const h = 200;
-        canvas.width = w;
-        canvas.height = h;
-        ctx.drawImage(imgElement, 0, 0, w, h);
+        try {
+          const canvas = document.createElement('canvas');
+          const ctx = canvas.getContext('2d');
+          if (!ctx) return;
+          const w = 100;
+          const h = 200;
+          canvas.width = w;
+          canvas.height = h;
+          ctx.drawImage(imgElement, 0, 0, w, h);
 
-        const imgData = ctx.getImageData(25, 20, 50, 160).data;
-        const rowLuminance = [];
-        for (let y = 0; y < 160; y++) {
-          let sum = 0;
-          for (let x = 0; x < 50; x++) {
-            const idx = (y * 50 + x) * 4;
-            sum += 0.299 * imgData[idx] + 0.587 * imgData[idx + 1] + 0.114 * imgData[idx + 2];
+          const imgData = ctx.getImageData(25, 20, 50, 160).data;
+          const rowLuminance = [];
+          for (let y = 0; y < 160; y++) {
+            let sum = 0;
+            for (let x = 0; x < 50; x++) {
+              const idx = (y * 50 + x) * 4;
+              sum += 0.299 * imgData[idx] + 0.587 * imgData[idx + 1] + 0.114 * imgData[idx + 2];
+            }
+            rowLuminance.push(sum / 50);
           }
-          rowLuminance.push(sum / 50);
-        }
 
-        // Find strongest horizontal gradient (meniscus boundary between air & water)
-        let maxDiff = 0;
-        let meniscusRow = 80;
-        for (let y = 5; y < 155; y++) {
-          const diff = Math.abs(rowLuminance[y + 3] - rowLuminance[y - 3]);
-          if (diff > maxDiff) {
-            maxDiff = diff;
-            meniscusRow = y;
+          let maxDiff = 0;
+          let meniscusRow = 80;
+          for (let y = 5; y < 155; y++) {
+            const diff = Math.abs(rowLuminance[y + 3] - rowLuminance[y - 3]);
+            if (diff > maxDiff) {
+              maxDiff = diff;
+              meniscusRow = y;
+            }
           }
-        }
 
-        const fillRatio = Math.max(0, Math.min(1, 1 - meniscusRow / 160));
-        const detectedMl = Math.round((fillRatio * state.bottleCapacityMl) / 10) * 10;
-        state.visionConfidence = Math.min(99, Math.max(85, Math.round(85 + maxDiff / 8)));
-        processCameraWaterLevel(detectedMl, 'Image AI Meniscus Scan');
+          const fillRatio = Math.max(0, Math.min(1, 1 - meniscusRow / 160));
+          const detectedMl = Math.round((fillRatio * state.bottleCapacityMl) / 10) * 10;
+          state.visionConfidence = Math.min(99, Math.max(85, Math.round(85 + maxDiff / 8)));
+          processCameraWaterLevel(detectedMl, 'Image AI Meniscus Scan');
+        } catch (err) {
+          document.getElementById('vision-status-msg').textContent =
+            'Image loaded. Unable to read pixel buffer on this browser.';
+        }
       }
 
-      // ==================== EVENT LISTENERS ====================
       document.getElementById('upload-photo-btn').addEventListener('click', () => {
         document.getElementById('bottle-image-input').click();
       });
@@ -1026,21 +1044,19 @@
         const reader = new FileReader();
         reader.onload = (ev) => {
           const img = document.getElementById('bottle-photo-preview');
+          img.onload = () => analyzeUploadedBottleImage(img);
           img.src = ev.target.result;
           img.classList.remove('hidden');
-          img.onload = () => analyzeUploadedBottleImage(img);
         };
         reader.readAsDataURL(file);
       });
 
       document.getElementById('sim-camera-sip-btn').addEventListener('click', () => {
         const sipAmount = 150;
-        const nextLevel = state.bottleCurrentMl >= sipAmount
-          ? state.bottleCurrentMl - sipAmount
-          : state.bottleCapacityMl - sipAmount;
         if (state.bottleCurrentMl < sipAmount) {
           state.bottleCurrentMl = state.bottleCapacityMl;
         }
+        const nextLevel = state.bottleCurrentMl - sipAmount;
         processCameraWaterLevel(nextLevel, 'Camera AI Telemetry');
       });
 
@@ -1096,7 +1112,6 @@
         updatePlanAndUI();
       });
 
-      // Tabs
       function switchTab(tabName) {
         ['home', 'analytics', 'controls'].forEach((t) => {
           document.getElementById(`tab-${t}`).classList.add('hidden');
@@ -1162,15 +1177,14 @@
         }
         btn.textContent = 'Stop Demo';
         state.simInterval = setInterval(() => {
-          const nextLevel = state.bottleCurrentMl >= 100
-            ? state.bottleCurrentMl - 100
-            : state.bottleCapacityMl - 100;
-          if (state.bottleCurrentMl < 100) state.bottleCurrentMl = state.bottleCapacityMl;
+          if (state.bottleCurrentMl < 100) {
+            state.bottleCurrentMl = state.bottleCapacityMl;
+          }
+          const nextLevel = state.bottleCurrentMl - 100;
           processCameraWaterLevel(nextLevel, 'Auto Camera Poll');
         }, 4000);
       });
 
-      // Bluetooth Connection: Bottle Camera & IMU
       document.getElementById('ble-cam-btn').addEventListener('click', async () => {
         const textEl = document.getElementById('ble-cam-text');
         const dotEl = document.getElementById('ble-cam-dot');
@@ -1192,7 +1206,6 @@
           textEl.textContent = device.name ? device.name.slice(0, 10) : 'Cam Linked';
           dotEl.className = 'status-dot connected';
 
-          // Listen for BLE notifications formatted as "LVL:500,STILL:1"
           try {
             const service = await server.getPrimaryService('6e400001-b5a3-f393-e0a9-e50e24dcca9e');
             const rxChar = await service.getCharacteristic('6e400003-b5a3-f393-e0a9-e50e24dcca9e');
@@ -1211,7 +1224,6 @@
         }
       });
 
-      // Bluetooth Connection: External LED Display Board
       document.getElementById('ble-led-btn').addEventListener('click', async () => {
         const textEl = document.getElementById('ble-led-text');
         const dotEl = document.getElementById('ble-led-dot');
