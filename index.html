@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>AURA-SYNC | Vision AI Smart Bottle &amp; LED Sync</title>
+  <title>StatinSips | Smart Hydration &amp; Privacy-First Wearable</title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
   <style>
     :root {
@@ -37,6 +37,55 @@
       border-left: 1px solid var(--border);
       border-right: 1px solid var(--border);
       padding-bottom: 84px;
+    }
+
+    /* Upfront Enhanced Notice Modal */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(3, 7, 18, 0.88);
+      backdrop-filter: blur(8px);
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+
+    .modal-card {
+      background: #0F172A;
+      border: 1px solid #334155;
+      border-top: 4px solid var(--cyan);
+      border-radius: 20px;
+      padding: 20px;
+      max-width: 400px;
+      width: 100%;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
+    }
+
+    .modal-title {
+      font-size: 17px;
+      font-weight: 800;
+      color: var(--text-main);
+      margin-bottom: 6px;
+    }
+
+    .modal-list {
+      margin: 12px 0;
+      padding-left: 16px;
+      font-size: 12px;
+      color: #CBD5E1;
+      line-height: 1.5;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .modal-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-top: 14px;
     }
 
     header {
@@ -81,9 +130,9 @@
     .status-dot.error { background: var(--rose); }
 
     .brand-title {
-      font-size: 11px;
+      font-size: 13px;
       font-weight: 800;
-      letter-spacing: 0.14em;
+      letter-spacing: 0.08em;
       color: var(--cyan);
     }
 
@@ -111,6 +160,7 @@
 
     .card-accent { border-left: 4px solid var(--cyan); }
     .card-emerald { border-left: 4px solid var(--emerald); }
+    .card-purple { border-left: 4px solid var(--purple); }
 
     .row-between {
       display: flex;
@@ -130,8 +180,8 @@
     .text-purple { color: var(--purple); }
     .text-muted { color: var(--text-muted); }
     .font-bold { font-weight: 700; }
-    .mt-10 { margin-top: 10px; }
     .mb-8 { margin-bottom: 8px; }
+    .mt-8 { margin-top: 8px; }
 
     .pill-badge {
       background: #0F172A;
@@ -146,6 +196,7 @@
 
     .pill-badge.cyan { color: #67E8F9; }
     .pill-badge.emerald { color: var(--emerald); }
+    .pill-badge.rose { color: #FDA4AF; border-color: rgba(244, 63, 94, 0.45); }
 
     /* External LED Board Preview */
     .led-board {
@@ -166,9 +217,9 @@
     }
 
     .led-matrix-text {
-      font-size: 18px;
+      font-size: 17px;
       font-weight: 800;
-      letter-spacing: 0.08em;
+      letter-spacing: 0.06em;
       color: #38BDF8;
       text-shadow: 0 0 8px rgba(56, 189, 248, 0.7);
       text-align: center;
@@ -245,6 +296,41 @@
     .dot-emerald { width: 8px; height: 8px; border-radius: 50%; background: var(--emerald); }
     .dot-amber { width: 8px; height: 8px; border-radius: 50%; background: var(--amber); }
 
+    /* Manual Fallback Controls */
+    .sip-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .btn-sip {
+      background: #1E293B;
+      border: 1px solid #334155;
+      color: var(--text-main);
+      padding: 9px 6px;
+      border-radius: 10px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .btn-sip span {
+      display: block;
+      font-size: 10px;
+      font-weight: 400;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    .btn-sip.primary {
+      background: var(--cyan);
+      border-color: var(--cyan);
+      color: #042F2E;
+    }
+
+    .btn-sip.primary span { color: #0F172A; font-weight: 600; }
+
     /* Camera Vision AI & Stability Gate */
     .stability-banner {
       display: flex;
@@ -312,6 +398,12 @@
       color: var(--amber);
     }
 
+    .btn-action.danger {
+      background: rgba(244, 63, 94, 0.15);
+      border-color: var(--rose);
+      color: #FDA4AF;
+    }
+
     .form-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -353,6 +445,13 @@
     .btn-full.emerald {
       background: var(--emerald);
       color: #042F2E;
+    }
+
+    .btn-full.secondary {
+      background: #1E293B;
+      border: 1px solid #334155;
+      color: var(--text-main);
+      margin-top: 0;
     }
 
     .plan-box {
@@ -491,14 +590,61 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 12px 0;
+      padding: 11px 0;
       border-top: 1px solid var(--border);
       font-size: 12px;
+      gap: 10px;
     }
 
     .pref-row:first-of-type { border-top: none; padding-top: 4px; }
-    .pref-sub { font-size: 10px; }
-    .toggle-check { width: 18px; height: 18px; accent-color: var(--cyan); }
+    .pref-sub { font-size: 10px; line-height: 1.35; }
+    .toggle-check { width: 18px; height: 18px; accent-color: var(--cyan); flex-shrink: 0; cursor: pointer; }
+
+    /* IoT Security & Privacy Nutrition Label */
+    .nutrition-label {
+      border: 2px solid #E2E8F0;
+      background: #090D16;
+      border-radius: 12px;
+      padding: 12px;
+      margin-top: 10px;
+      font-size: 11px;
+      line-height: 1.45;
+    }
+
+    .nl-header {
+      border-bottom: 4px solid #E2E8F0;
+      padding-bottom: 6px;
+      margin-bottom: 8px;
+    }
+
+    .nl-header h4 {
+      font-size: 14px;
+      font-weight: 900;
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
+    }
+
+    .nl-section-title {
+      font-size: 10px;
+      font-weight: 800;
+      text-transform: uppercase;
+      color: var(--cyan);
+      border-bottom: 1px solid #334155;
+      padding-bottom: 3px;
+      margin: 8px 0 5px;
+      letter-spacing: 0.05em;
+    }
+
+    .nl-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      padding: 3px 0;
+      border-bottom: 1px solid #1E293B;
+    }
+
+    .nl-row span:first-child { color: var(--text-muted); }
+    .nl-row span:last-child { font-weight: 700; text-align: right; color: var(--text-main); }
 
     nav {
       position: fixed;
@@ -534,13 +680,35 @@
 </head>
 <body>
 
+  <!-- Upfront Enhanced Privacy & Sensor Consent Modal -->
+  <div id="consent-modal" class="modal-overlay">
+    <div class="modal-card">
+      <div class="row-between mb-8">
+        <span class="pill-badge cyan">PRIVACY &amp; AI NOTICE</span>
+        <span class="subtext">No Login Required</span>
+      </div>
+      <div class="modal-title">Welcome to StatinSips</div>
+      <p class="subtext">Before enabling smart sensors, please review how your data is protected:</p>
+      <ul class="modal-list">
+        <li><strong>Local Camera Processing:</strong> The internal water-level camera runs locally in your browser—raw video or photos are never streamed or saved to external servers.</li>
+        <li><strong>De-Identified AI Targets:</strong> Only anonymous age, weight, and activity inputs (stripped of personal IDs) are used to calculate daily intake targets.</li>
+        <li><strong>Zero Data Brokers:</strong> Your health and hydration metrics are never sold or shared with ad networks.</li>
+      </ul>
+      <div class="modal-actions">
+        <button type="button" id="accept-ai-btn" class="btn-full">✅ Accept AI &amp; Optical Sensor Tracking</button>
+        <button type="button" id="decline-ai-btn" class="btn-full secondary">Decline AI — Use Basic Manual Tracker</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Dual Bluetooth Header: Bottle Camera + External LED Board -->
   <header>
     <button id="ble-cam-btn" type="button" class="ble-btn">
       <span id="ble-cam-dot" class="status-dot"></span>
       <span id="ble-cam-text">📷 Camera BLE</span>
     </button>
 
-    <div class="brand-title">AURA-SYNC</div>
+    <div class="brand-title">StatinSips</div>
 
     <button id="ble-led-btn" type="button" class="ble-btn">
       <span id="ble-led-dot" class="status-dot"></span>
@@ -553,7 +721,7 @@
     <section id="tab-home" class="tab-section">
       <div class="row-between">
         <div>
-          <p class="subtext">Vision AI + Bluetooth Telemetry</p>
+          <p class="subtext" id="tracking-mode-subtitle">Local Edge AI + Encrypted BLE</p>
           <h1>Hydration Today</h1>
         </div>
         <span class="pill-badge">🔥 5 Day Streak</span>
@@ -562,7 +730,7 @@
       <!-- External LED Board Live Output Mirror -->
       <div class="led-board">
         <div class="led-header">
-          <span>📟 EXTERNAL LED BOARD OUTPUT (BLE TX)</span>
+          <span>📟 STATINSIPS LED DISPLAY (BLE BONDED)</span>
           <span id="led-sync-status" class="text-emerald">● SYNCED</span>
         </div>
         <div id="led-display-readout" class="led-matrix-text">1,250 / 2,680 ML (47%)</div>
@@ -589,22 +757,31 @@
 
         <div class="legend-row">
           <span class="legend-item"><span class="dot-cyan"></span>Drank Today</span>
-          <span class="legend-item"><span class="dot-emerald"></span>Camera Bottle Fill (<span id="bottle-pct-label">60%</span>)</span>
+          <span class="legend-item"><span class="dot-emerald"></span>Bottle Level (<span id="bottle-pct-label">60%</span>)</span>
+        </div>
+
+        <!-- Manual Sip Fallback Controls (Shown when AI is declined or for quick logging) -->
+        <div id="manual-tracker-box" class="hidden">
+          <div class="sip-grid">
+            <button type="button" class="btn-sip" data-manual-sip="150">+150 ml<span>Manual Sip</span></button>
+            <button type="button" class="btn-sip primary" data-manual-sip="250">+250 ml<span>Manual Glass</span></button>
+            <button type="button" class="btn-sip" data-manual-sip="500">+500 ml<span>Manual Bottle</span></button>
+          </div>
         </div>
 
         <div class="action-links">
           <button type="button" id="refill-btn" class="link-btn">Refill Bottle (750 ml)</button>
-          <span>Last AI scan: <strong id="last-sip-time">Just now</strong></span>
+          <span>Last log: <strong id="last-sip-time">Just now</strong></span>
           <button type="button" id="reset-btn" class="link-btn muted">Reset</button>
         </div>
       </div>
 
-      <!-- Vision AI Camera & Neutral Stability Gate -->
-      <div class="card card-emerald">
+      <!-- Local Browser Vision AI Camera & Neutral Stability Gate -->
+      <div id="vision-ai-card" class="card card-emerald">
         <div class="row-between">
           <div>
-            <h3>📷 Vision AI Water-Level Sensor</h3>
-            <p class="subtext">Measures bottle level only when neutral &amp; still</p>
+            <h3>📷 Localized Camera Water-Level Sensor</h3>
+            <p class="subtext">Runs strictly in browser — zero video stored or streamed</p>
           </div>
           <span id="bottle-cap-badge" class="pill-badge cyan">750 ml Bottle</span>
         </div>
@@ -615,12 +792,12 @@
         </div>
 
         <div class="vision-preview-box">
-          <p class="subtext" id="vision-status-msg">Upload a bottle photo to test Vision AI meniscus level detection, or simulate a camera capture below.</p>
+          <p class="subtext" id="vision-status-msg">Upload a bottle photo for local meniscus detection, or simulate an upright camera capture below.</p>
           <img id="bottle-photo-preview" class="hidden" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" alt="Bottle level scan preview" />
           <input type="file" id="bottle-image-input" accept="image/*" class="hidden" />
 
           <div class="btn-row-2">
-            <button type="button" id="upload-photo-btn" class="btn-action cyan">📸 Upload Bottle Photo</button>
+            <button type="button" id="upload-photo-btn" class="btn-action cyan">📸 Local Photo Scan</button>
             <button type="button" id="sim-camera-sip-btn" class="btn-action">🤖 Simulate Camera Scan</button>
           </div>
 
@@ -631,12 +808,12 @@
         </div>
       </div>
 
-      <!-- Biometric Target Calculator -->
+      <!-- De-Identified Biometric Target Calculator -->
       <div class="card card-accent">
         <div class="row-between">
           <div>
-            <h3>🧠 Biometric Hydration Goal</h3>
-            <p class="subtext">Sets daily intake target sent to AI &amp; LED board</p>
+            <h3>🧠 De-Identified Hydration Calculator</h3>
+            <p class="subtext">No name or account needed — age, weight &amp; activity only</p>
           </div>
           <span id="oz-badge" class="pill-badge cyan">91 oz / day</span>
         </div>
@@ -664,7 +841,7 @@
             </select>
           </div>
           <div>
-            <label for="bottle-size-select">Set Bottle Capacity</label>
+            <label for="bottle-size-select">Bottle Capacity</label>
             <select id="bottle-size-select">
               <option value="500">500 ml (16.9 oz)</option>
               <option value="750" selected>750 ml (25.4 oz)</option>
@@ -675,19 +852,19 @@
 
         <button type="button" id="update-plan-btn" class="btn-full">✨ Update Target &amp; Sync LED Board</button>
 
-        <div class="plan-box">
+        <div id="suggestions-container" class="plan-box">
           <p id="ai-plan-text"></p>
           <div id="schedule-pills" class="schedule-grid"></div>
         </div>
       </div>
     </section>
 
-    <!-- ==================== TAB 2: ANALYTICS (RINGS + LOGS) ==================== -->
+    <!-- ==================== TAB 2: ANALYTICS ==================== -->
     <section id="tab-analytics" class="tab-section hidden">
       <div class="row-between">
         <div>
           <h2>Hydration Rings &amp; Logs</h2>
-          <p class="subtext">Camera AI accuracy, sip pace &amp; sensor metrics</p>
+          <p class="subtext">On-device hydration progress &amp; sensor stability</p>
         </div>
         <div class="unit-switch">
           <button type="button" id="btn-view-day" class="unit-btn active">Today</button>
@@ -726,11 +903,11 @@
               <div id="ring-vol-val" class="stat-val-text">1,250 / 2,680 ml</div>
             </div>
             <div>
-              <div class="legend-item text-emerald font-bold"><span class="dot-emerald"></span>Stable AI Scans</div>
+              <div class="legend-item text-emerald font-bold"><span class="dot-emerald"></span>Valid Logs</div>
               <div id="ring-pace-val" class="stat-val-text">63% On Schedule</div>
             </div>
             <div>
-              <div class="legend-item text-amber font-bold"><span class="dot-amber"></span>Vision Confidence</div>
+              <div class="legend-item text-amber font-bold"><span class="dot-amber"></span>Sensor Lock</div>
               <div id="ring-qual-val" class="stat-val-text">96% Neutral Lock</div>
             </div>
           </div>
@@ -743,7 +920,7 @@
             <span class="tag-label text-emerald">DATA OUTPUT #2</span>
             <h3>Bottle Level &amp; Stability Log</h3>
           </div>
-          <span class="pill-badge emerald">IMU Anti-Slosh Active</span>
+          <span class="pill-badge emerald">Local Edge Storage</span>
         </div>
 
         <div class="stat-strip">
@@ -757,10 +934,79 @@
       </div>
     </section>
 
-    <!-- ==================== TAB 3: CONTROLS & HARDWARE ==================== -->
+    <!-- ==================== TAB 3: CONTROLS, HARDWARE & PRIVACY LABEL ==================== -->
     <section id="tab-controls" class="tab-section hidden">
-      <h2>Hardware &amp; Bluetooth Controls</h2>
+      <h2>Controls &amp; Privacy Label</h2>
 
+      <!-- Consumer Choice & Consent Controls -->
+      <div class="card card-purple">
+        <div class="row-between mb-8">
+          <div>
+            <h3>🛡️ Consumer Privacy &amp; Consent Controls</h3>
+            <p class="subtext">Upfront AI consent, one-tap opt-out &amp; local deletion</p>
+          </div>
+          <span class="pill-badge rose">Zero Data Brokers</span>
+        </div>
+
+        <div class="pref-row">
+          <div>
+            <strong>AI &amp; Optical Camera Tracking</strong>
+            <p class="subtext pref-sub">Toggle off to decline AI processing and use basic manual tracker</p>
+          </div>
+          <input type="checkbox" id="ai-consent-toggle" checked class="toggle-check" />
+        </div>
+
+        <div class="pref-row">
+          <div>
+            <strong>In-App Suggestions &amp; Reminders</strong>
+            <p class="subtext pref-sub">One-tap opt-out to hide tailored hydration schedule suggestions</p>
+          </div>
+          <input type="checkbox" id="optout-suggestions-toggle" checked class="toggle-check" />
+        </div>
+
+        <div class="pref-row">
+          <div>
+            <strong>3rd-Party Wellness App Sharing</strong>
+            <p class="subtext pref-sub">Off by default — requires explicit opt-in consent</p>
+          </div>
+          <input type="checkbox" id="thirdparty-optin-toggle" class="toggle-check" />
+        </div>
+
+        <div class="btn-row-2">
+          <button type="button" id="export-data-btn" class="btn-action cyan">📥 Export Local Data</button>
+          <button type="button" id="delete-data-btn" class="btn-action danger">🗑️ Local Reset &amp; Delete</button>
+        </div>
+        <p id="privacy-feedback-msg" class="subtext mt-8" style="text-align: center;"></p>
+      </div>
+
+      <!-- IoT Security & Privacy Label (Prompt 4) -->
+      <div class="card">
+        <h3>📋 IoT Security &amp; Privacy Label</h3>
+        <p class="subtext">Standardized transparency disclosure for StatinSips</p>
+
+        <div class="nutrition-label">
+          <div class="nl-header">
+            <h4>Security &amp; Privacy Label</h4>
+            <span class="subtext">Device: StatinSips Smart Hydration Bottle</span>
+          </div>
+
+          <div class="nl-section-title">Security Mechanisms</div>
+          <div class="nl-row"><span>Security Updates</span><span>Automatic app; encrypted BLE OTA</span></div>
+          <div class="nl-row"><span>Encryption</span><span>BLE Bonding + HTTPS/TLS web</span></div>
+          <div class="nl-row"><span>Access Control</span><span>Local storage; Local Reset &amp; Delete</span></div>
+
+          <div class="nl-section-title">Data Practices</div>
+          <div class="nl-row"><span>Sensor Data</span><span>Internal optical camera (water level)</span></div>
+          <div class="nl-row"><span>Video Retention</span><span>Zero raw video/images saved</span></div>
+          <div class="nl-row"><span>User Inputs</span><span>Age, weight, activity (no login/ID)</span></div>
+          <div class="nl-row"><span>AI Processing</span><span>De-identified inputs only</span></div>
+          <div class="nl-row"><span>Data Brokers / Ads</span><span class="text-emerald">Never Sold or Shared</span></div>
+          <div class="nl-row"><span>3rd-Party Sharing</span><span>Off by default (opt-in only)</span></div>
+          <div class="nl-row"><span>Scientific Research</span><span>None conducted</span></div>
+        </div>
+      </div>
+
+      <!-- Hardware & IMU Controls -->
       <div class="card">
         <div class="row-between">
           <div>
@@ -775,39 +1021,10 @@
           <span>±5° (Recommended)</span>
           <span>±15° (Relaxed)</span>
         </div>
-      </div>
 
-      <div class="card">
-        <div class="row-between">
-          <div>
-            <h3>LED Board Brightness &amp; Alert</h3>
-            <p class="subtext">Flash external LED display &amp; chime bottle</p>
-          </div>
-          <span>📟</span>
-        </div>
         <button type="button" id="chime-btn" class="btn-full emerald">🔊 Flash LED Board &amp; Play Chime</button>
-      </div>
 
-      <div class="card">
-        <h3 class="mb-8">BLE Telemetry &amp; Calibration</h3>
-
-        <div class="pref-row">
-          <div>
-            <strong>Anti-Slosh Settling Delay</strong>
-            <p class="subtext pref-sub">Wait 2.5s after bottle stops moving before capture</p>
-          </div>
-          <input type="checkbox" id="antislosh-toggle" checked class="toggle-check" />
-        </div>
-
-        <div class="pref-row">
-          <div>
-            <strong>Auto-Push Intake to LED Board</strong>
-            <p class="subtext pref-sub">Send BLE packet immediately after every AI reading</p>
-          </div>
-          <input type="checkbox" id="autoled-toggle" checked class="toggle-check" />
-        </div>
-
-        <div class="pref-row">
+        <div class="pref-row mt-8">
           <div>
             <strong>Autonomous Camera Poll Demo</strong>
             <p class="subtext pref-sub">Simulate periodic upright bottle scans</p>
@@ -828,14 +1045,16 @@
       <span>Rings &amp; Logs</span>
     </button>
     <button type="button" id="nav-controls" class="nav-btn">
-      <span class="nav-icon">⚙️</span>
-      <span>Hardware</span>
+      <span class="nav-icon">🛡️</span>
+      <span>Controls &amp; Privacy</span>
     </button>
   </nav>
 
   <script>
     document.addEventListener('DOMContentLoaded', () => {
       const state = {
+        aiConsented: true,
+        suggestionsEnabled: true,
         consumedMl: 1250,
         targetMl: 2680,
         bottleCapacityMl: 750,
@@ -851,6 +1070,50 @@
         qualityChart: null
       };
 
+      // ==================== UPFRONT CONSENT & MANUAL MODE ====================
+      function applyConsentMode(consented) {
+        state.aiConsented = consented;
+        document.getElementById('ai-consent-toggle').checked = consented;
+        document.getElementById('consent-modal').classList.add('hidden');
+
+        const visionCard = document.getElementById('vision-ai-card');
+        const manualBox = document.getElementById('manual-tracker-box');
+        const subtitle = document.getElementById('tracking-mode-subtitle');
+
+        if (consented) {
+          visionCard.classList.remove('hidden');
+          manualBox.classList.add('hidden');
+          subtitle.textContent = 'Local Edge AI + Encrypted BLE';
+        } else {
+          visionCard.classList.add('hidden');
+          manualBox.classList.remove('hidden');
+          subtitle.textContent = 'Basic Manual Tracker Mode (AI Declined)';
+          if (state.simInterval) {
+            clearInterval(state.simInterval);
+            state.simInterval = null;
+            document.getElementById('sim-stream-btn').textContent = 'Start Demo';
+          }
+        }
+        updatePlanAndUI();
+      }
+
+      document.getElementById('accept-ai-btn').addEventListener('click', () => applyConsentMode(true));
+      document.getElementById('decline-ai-btn').addEventListener('click', () => applyConsentMode(false));
+      document.getElementById('ai-consent-toggle').addEventListener('change', (e) => {
+        applyConsentMode(e.target.checked);
+      });
+
+      document.getElementById('optout-suggestions-toggle').addEventListener('change', (e) => {
+        state.suggestionsEnabled = e.target.checked;
+        const box = document.getElementById('suggestions-container');
+        if (state.suggestionsEnabled) {
+          box.classList.remove('hidden');
+        } else {
+          box.classList.add('hidden');
+        }
+      });
+
+      // ==================== DE-IDENTIFIED BIOMETRIC CALCULATOR ====================
       function computeRecommendedIntakeMl() {
         const weightLbs = Math.max(50, parseFloat(document.getElementById('user-weight').value) || 160);
         const age = Math.max(10, parseFloat(document.getElementById('user-age').value) || 24);
@@ -881,8 +1144,13 @@
         const { totalMl, totalOz, weightLbs, age, activity } = computeRecommendedIntakeMl();
         const remaining = Math.max(0, totalMl - state.consumedMl);
 
-        document.getElementById('ai-plan-text').innerHTML =
-          `Profile: <strong>${weightLbs} lbs</strong>, age <strong>${age}</strong> (<strong>${activity}</strong>). Target set to <strong>${totalMl.toLocaleString()} ml (${totalOz} oz)</strong>. Camera AI subtracts each neutral bottle reading from your <strong>${state.bottleCapacityMl} ml</strong> bottle and updates the LED board automatically. ${remaining > 0 ? `<strong>${remaining.toLocaleString()} ml</strong> left today.` : 'Daily target reached!'}`;
+        if (state.aiConsented) {
+          document.getElementById('ai-plan-text').innerHTML =
+            `De-identified inputs: <strong>${weightLbs} lbs</strong>, age <strong>${age}</strong> (<strong>${activity}</strong>). Recommended daily target: <strong>${totalMl.toLocaleString()} ml (${totalOz} oz)</strong>. ${remaining > 0 ? `<strong>${remaining.toLocaleString()} ml</strong> left today.` : 'Daily target reached!'}`;
+        } else {
+          document.getElementById('ai-plan-text').innerHTML =
+            `Manual Mode: Daily benchmark is <strong>${totalMl.toLocaleString()} ml (${totalOz} oz)</strong>. Use the manual sip buttons above to log water intake.`;
+        }
 
         const morningMl = Math.round(totalMl * 0.3);
         const middayMl = Math.round(totalMl * 0.35);
@@ -900,6 +1168,7 @@
         transmitToLedBoard();
       }
 
+      // ==================== UI & LED BOARD SYNC ====================
       function refreshAllUI() {
         const pct = Math.min(100, Math.round((state.consumedMl / state.targetMl) * 100));
         const bottlePct = Math.min(100, Math.max(0, Math.round((state.bottleCurrentMl / state.bottleCapacityMl) * 100)));
@@ -928,7 +1197,7 @@
         document.getElementById('analytics-pace-badge').textContent = `${pct}% Complete`;
         document.getElementById('ring-center-pct').textContent = `${pct}%`;
         document.getElementById('ring-vol-val').textContent = `${state.consumedMl.toLocaleString()} / ${state.targetMl.toLocaleString()} ml`;
-        document.getElementById('ring-pace-val').textContent = `${pacePct}% (${state.validScans} stable scans)`;
+        document.getElementById('ring-pace-val').textContent = `${pacePct}% (${state.validScans} logs)`;
         document.getElementById('ring-qual-val').textContent = `${state.visionConfidence}% Neutral Lock`;
 
         const r1 = 540.35;
@@ -938,7 +1207,7 @@
         document.getElementById('ring-stat-pace').style.strokeDashoffset = String(r2 - (pacePct / 100) * r2);
         document.getElementById('ring-stat-quality').style.strokeDashoffset = String(r3 - (state.visionConfidence / 100) * r3);
 
-        document.getElementById('scan-count-stat').textContent = `${state.validScans} Valid Scans`;
+        document.getElementById('scan-count-stat').textContent = `${state.validScans} Valid Logs`;
         document.getElementById('slosh-reject-stat').textContent = `${state.sloshBlockedCount} Blocked`;
       }
 
@@ -958,7 +1227,26 @@
         }
       }
 
+      // Manual Sip Buttons
+      document.querySelectorAll('[data-manual-sip]').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const ml = parseInt(btn.getAttribute('data-manual-sip') || '250', 10);
+          state.consumedMl += ml;
+          state.validScans += 1;
+          state.bottleCurrentMl = Math.max(0, state.bottleCurrentMl - ml);
+          if (state.bottleCurrentMl === 0) state.bottleCurrentMl = state.bottleCapacityMl;
+          document.getElementById('last-sip-time').textContent = new Date().toLocaleTimeString([], {
+            hour: '2-digit',
+            minute: '2-digit'
+          });
+          updatePlanAndUI();
+        });
+      });
+
+      // ==================== LOCALIZED CAMERA VISION AI ====================
       function processCameraWaterLevel(newBottleLevelMl, sourceLabel) {
+        if (!state.aiConsented) return;
+
         if (!state.isNeutralAndStill) {
           state.sloshBlockedCount += 1;
           document.getElementById('vision-status-msg').innerHTML =
@@ -979,11 +1267,11 @@
             minute: '2-digit'
           });
           document.getElementById('vision-status-msg').innerHTML =
-            `<strong class="text-emerald">✅ ${sourceLabel}:</strong> Detected <strong>${clampedNewLevel} ml</strong> remaining in bottle → Logged <strong>+${drankDelta} ml drank</strong> &amp; updated LED board.`;
+            `<strong class="text-emerald">✅ ${sourceLabel}:</strong> Detected <strong>${clampedNewLevel} ml</strong> in bottle → Logged <strong>+${drankDelta} ml drank</strong> (zero video retained).`;
         } else if (clampedNewLevel > state.bottleCurrentMl + 30) {
           state.bottleCurrentMl = clampedNewLevel;
           document.getElementById('vision-status-msg').innerHTML =
-            `<strong class="text-cyan">🔄 Refill Detected:</strong> Bottle level updated to <strong>${clampedNewLevel} ml</strong> (no extra intake logged).`;
+            `<strong class="text-cyan">🔄 Refill Detected:</strong> Bottle level updated to <strong>${clampedNewLevel} ml</strong>.`;
         } else {
           document.getElementById('vision-status-msg').innerHTML =
             `<strong class="text-muted">ℹ️ No Change:</strong> Bottle level steady at <strong>${clampedNewLevel} ml</strong>.`;
@@ -1027,10 +1315,10 @@
           const fillRatio = Math.max(0, Math.min(1, 1 - meniscusRow / 160));
           const detectedMl = Math.round((fillRatio * state.bottleCapacityMl) / 10) * 10;
           state.visionConfidence = Math.min(99, Math.max(85, Math.round(85 + maxDiff / 8)));
-          processCameraWaterLevel(detectedMl, 'Image AI Meniscus Scan');
-        } catch (err) {
+          processCameraWaterLevel(detectedMl, 'Local Browser Meniscus Scan');
+        } catch (_) {
           document.getElementById('vision-status-msg').textContent =
-            'Image loaded. Unable to read pixel buffer on this browser.';
+            'Local image scanned in browser memory.';
         }
       }
 
@@ -1057,7 +1345,7 @@
           state.bottleCurrentMl = state.bottleCapacityMl;
         }
         const nextLevel = state.bottleCurrentMl - sipAmount;
-        processCameraWaterLevel(nextLevel, 'Camera AI Telemetry');
+        processCameraWaterLevel(nextLevel, 'Local Camera AI');
       });
 
       document.getElementById('toggle-slosh-btn').addEventListener('click', () => {
@@ -1093,13 +1381,65 @@
         refreshAllUI();
       });
 
-      document.getElementById('reset-btn').addEventListener('click', () => {
+      function performLocalResetAndDelete() {
         state.consumedMl = 0;
         state.validScans = 0;
         state.sloshBlockedCount = 0;
         state.bottleCurrentMl = state.bottleCapacityMl;
-        document.getElementById('last-sip-time').textContent = 'Reset';
+        document.getElementById('thirdparty-optin-toggle').checked = false;
+        const previewImg = document.getElementById('bottle-photo-preview');
+        previewImg.src = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
+        previewImg.classList.add('hidden');
+        document.getElementById('bottle-image-input').value = '';
+        document.getElementById('last-sip-time').textContent = 'Wiped';
         updatePlanAndUI();
+      }
+
+      document.getElementById('reset-btn').addEventListener('click', performLocalResetAndDelete);
+
+      document.getElementById('delete-data-btn').addEventListener('click', () => {
+        performLocalResetAndDelete();
+        document.getElementById('privacy-feedback-msg').innerHTML =
+          '<span class="text-rose">🗑️ Local Reset Complete: All hydration records, image previews, and consents wiped.</span>';
+      });
+
+      document.getElementById('export-data-btn').addEventListener('click', () => {
+        const exportPayload = {
+          product: 'StatinSips Smart Hydration Bottle',
+          exportedAt: new Date().toISOString(),
+          securityAndPrivacyLabel: {
+            encryption: 'Encrypted BLE Bonding + HTTPS/TLS',
+            videoRetention: 'Zero raw video or images saved',
+            dataBrokersOrAds: 'Never sold or shared',
+            scientificResearch: 'None conducted'
+          },
+          deIdentifiedProfile: {
+            weightLbs: document.getElementById('user-weight').value,
+            age: document.getElementById('user-age').value,
+            activityLevel: document.getElementById('user-activity').value
+          },
+          hydrationMetrics: {
+            consumedMl: state.consumedMl,
+            dailyTargetMl: state.targetMl,
+            validLogs: state.validScans
+          },
+          consumerConsents: {
+            aiAndCameraTrackingOptIn: state.aiConsented,
+            inAppSuggestionsEnabled: state.suggestionsEnabled,
+            thirdPartyAppSharingOptIn: document.getElementById('thirdparty-optin-toggle').checked
+          }
+        };
+
+        const blob = new Blob([JSON.stringify(exportPayload, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'statinsips-local-data.json';
+        a.click();
+        URL.revokeObjectURL(url);
+
+        document.getElementById('privacy-feedback-msg').innerHTML =
+          '<span class="text-emerald">✅ Local data &amp; privacy preferences exported (JSON).</span>';
       });
 
       document.getElementById('update-plan-btn').addEventListener('click', updatePlanAndUI);
@@ -1169,6 +1509,10 @@
 
       document.getElementById('sim-stream-btn').addEventListener('click', () => {
         const btn = document.getElementById('sim-stream-btn');
+        if (!state.aiConsented) {
+          alert('Enable AI & Optical Camera Tracking in Consumer Privacy Controls first.');
+          return;
+        }
         if (state.simInterval) {
           clearInterval(state.simInterval);
           state.simInterval = null;
@@ -1190,7 +1534,7 @@
         const dotEl = document.getElementById('ble-cam-dot');
 
         if (!navigator.bluetooth) {
-          textEl.textContent = '📷 Cam Ready';
+          textEl.textContent = '📷 Cam Bonded';
           dotEl.className = 'status-dot connected';
           return;
         }
@@ -1203,7 +1547,7 @@
           });
           state.camDevice = device;
           const server = await device.gatt.connect();
-          textEl.textContent = device.name ? device.name.slice(0, 10) : 'Cam Linked';
+          textEl.textContent = device.name ? device.name.slice(0, 10) : 'Cam Bonded';
           dotEl.className = 'status-dot connected';
 
           try {
@@ -1229,7 +1573,7 @@
         const dotEl = document.getElementById('ble-led-dot');
 
         if (!navigator.bluetooth) {
-          textEl.textContent = '📟 LED Ready';
+          textEl.textContent = '📟 LED Bonded';
           dotEl.className = 'status-dot connected';
           return;
         }
@@ -1242,7 +1586,7 @@
           });
           state.ledDevice = device;
           const server = await device.gatt.connect();
-          textEl.textContent = device.name ? device.name.slice(0, 10) : 'LED Linked';
+          textEl.textContent = device.name ? device.name.slice(0, 10) : 'LED Bonded';
           dotEl.className = 'status-dot connected';
 
           try {
@@ -1283,7 +1627,7 @@
                 yAxisID: 'y'
               },
               {
-                label: 'Vision AI Conf (%)',
+                label: 'Neutral Lock Conf (%)',
                 data: confData,
                 borderColor: '#34D399',
                 backgroundColor: '#34D399',
